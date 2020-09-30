@@ -23,7 +23,7 @@ let newState = {
     formasPagamento: []
 }
 
-export default function(state, action) {
+export default function(state = newState, action) {
     switch(action.type) {
         case ADD_FORMA:
             state.formasPagamento.push(action.payload)
@@ -56,8 +56,20 @@ export default function(state, action) {
             state.descontoAplicadoProduto = action.payload.descontoAplicado
             return state
         case LIMPA_FORM:
-            return newState
+            return state = {
+                itens: [],
+                pessoa: {},
+                itens: [],
+                descontoAplicadoProduto: false,
+                faturamento: {
+                    vlr_bruto_formatado: '0,00',
+                    vlr_bruto: '',
+                    vlr_desconto: '',
+                    vlr_liquido: '',
+                },
+                formasPagamento: []
+            }
         default:
-            return state || newState
+            return state
     }
 }

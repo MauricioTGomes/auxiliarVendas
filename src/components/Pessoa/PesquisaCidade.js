@@ -9,8 +9,9 @@ import {
     Modal,
 } from 'react-native'
 import { DataTable } from 'react-native-paper';
+import BotaoPesquisar from '../Form/BotaoPesquisar'
 
-const initialState = { nome: '', cidades: []}
+const initialState = { nome: '', cidades: [], showModal: false}
 
 export default class PesquisaCidade extends Component {
     state = {
@@ -19,50 +20,66 @@ export default class PesquisaCidade extends Component {
 
     setaNome = async nome => {
         this.setState({ nome })
+        let realm = (await getRealm())
         
+        let cidades = realm.objects('Cidade')
         if (this.state.nome != '') {
-            let cidades = (await getRealm()).objects('Cidade').filtered(`nome like "*${this.state.nome}*"`)
-    
-            this.setState({ cidades })
+            cidades = realm.objects('Cidade').filtered(`nome like "*${this.state.nome}*"`)
         }
+        this.setState({ cidades })
+    }
+
+    showModal = () => this.setState({ showModal: !this.state.showModal })
+
+    setaCidade = cidade => {
+        this.props.input(cidade)
+        this.showModal()
+    }
+
+    async componentDidMount() {
+        this.setaNome('')
     }
     
     render() {
         return (
-            <Modal transparent={true} visible={this.props.isVisible} onRequestClose={this.props.onCancel} animationType='slide'>
-                <TouchableWithoutFeedback onPress={this.props.onCancel}>
-                    <View style={styles.background}></View>
-                </TouchableWithoutFeedback>
+            <View>
+                <BotaoPesquisar abreModal={ this.showModal } label={ this.props.value } />
 
-                <View style={styles.container}>
-                    <Text style={styles.header}>Pesquisar cidades</Text>
-                    <FormInput
-                        label="Nome"
-                        value={this.state.nome}
-                        onChangeText={this.setaNome}
-                    />
+                <Modal transparent={true} visible={this.state.showModal} onRequestClose={this.showModal} animationType='slide'>
+                    <TouchableWithoutFeedback onPress={this.showModal}>
+                        <View style={styles.background}></View>
+                    </TouchableWithoutFeedback>
 
-                    <DataTable>
-                        <DataTable.Header>
+                    <View style={styles.container}>
+                        <Text style={styles.header}>Pesquisar cidade</Text>
+                        <FormInput
+                            label="Digite um parametro para pesquisa..."
+                            value={this.state.nome}
+                            onChangeText={this.setaNome}
+                        />
+
+                        <DataTable>
+                            <DataTable.Header>
                             <DataTable.Title sortDirection='descending'>Nome</DataTable.Title>
-                        </DataTable.Header>
+                            </DataTable.Header>
 
-                        {
-                            this.state.cidades.map((cidade, index) => {
-                                return (
-                                    <DataTable.Row onPress={() => this.props.input(cidade)} key={index}>
-                                        <DataTable.Cell style={styles.cell}>{`${cidade.nome} - ${cidade.uf}`}</DataTable.Cell>
-                                    </DataTable.Row>
-                                )
-                            })
-                        }
-                    </DataTable>
-                </View>
+                            {
+                                this.state.cidades.map((cidade, index) => {
+                                    return (
+                                        <DataTable.Row onPress={() => this.setaCidade(cidade)} key={index}>
+                                            <DataTable.Cell style={styles.cell}>{`${cidade.nome} - ${cidade.uf}`}</DataTable.Cell>
+                                        </DataTable.Row>
+                                    )
+                                })
+                            }
+                        </DataTable>
+                    </View>
 
-                <TouchableWithoutFeedback onPress={this.props.onCancel}>
-                    <View style={styles.background}></View>
-                </TouchableWithoutFeedback>
-            </Modal>
+                    <TouchableWithoutFeedback onPress={this.showModal}>
+                        <View style={styles.background}></View>
+                    </TouchableWithoutFeedback>
+                </Modal>
+            </View>
         )
     }
 }

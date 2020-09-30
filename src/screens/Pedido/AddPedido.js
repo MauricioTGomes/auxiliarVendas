@@ -12,7 +12,7 @@ import {formatMoney} from '../../components/Functions'
 import { limparForm, addPessoa, addItem, removeItem, controlaDadosFaturamento } from '../../store/actions/pedido'
 import commonStyles from '../../commonStyles'
 
-const itemInicial = {produto: {}, index: null, produto_id: null, quantidade: 1, vlr_unitario: '', vlr_desconto: '', vlr_total: '0,00', vlr_unitario: ''}
+const itemInicial = {produto: {}, index: null, produto_id: null, quantidade: 1, vlr_unitario: '', vlr_desconto: '', vlr_total: 0, vlr_unitario: ''}
 
 class AddPedido extends Component {
     state = {
@@ -28,7 +28,7 @@ class AddPedido extends Component {
 
     calculaValorItem = async () => {
         let itemTemp = this.state.item
-        itemTemp.vlr_total = formatMoney(this.efetuaCalculoValorItem(itemTemp))
+        itemTemp.vlr_total = this.efetuaCalculoValorItem(itemTemp)
         this.setState({ item: itemTemp })
     }
 
@@ -67,7 +67,7 @@ class AddPedido extends Component {
             produto,
             produto_id: produto.id,
             vlr_unitario: produto.vlr_venda,
-            vlr_total: formatMoney(produto.vlr_venda)
+            vlr_total: produto.vlr_venda
         }
         this.setState({ item: itemTemp })
     }
@@ -100,7 +100,7 @@ class AddPedido extends Component {
     }
 
     async componentDidMount() {
-        this.props.limparForm()
+        await this.props.limparForm()
         this.props.addPessoa(this.props.route.params.pessoa)
         this.calculaValorTotalForm()
     }
@@ -178,9 +178,9 @@ class AddPedido extends Component {
                             <View style={ commonStyles.espacoInputs }></View>
 
                             <View style={  commonStyles.containerInputTotal }>
-                                <Text style={ styles.textTotal }>{`R$ ${this.state.item.vlr_total}`}</Text>
+                                <Text style={ styles.textTotal }>{`R$ ${formatMoney(this.state.item.vlr_total)}`}</Text>
                                 <Button 
-                                    disabled={ this.state.item.vlr_total == '0,00' } style={ styles.button }
+                                    disabled={ this.state.item.vlr_total <= 0 } style={ styles.button }
                                     mode="contained" color="green"
                                     onPress={this.adicionaItem}
                                 >
@@ -219,7 +219,7 @@ class AddPedido extends Component {
                                                                     </View>
                                                                 </DataTable.Cell>
                                                                 
-                                                                <DataTable.Cell>{item.vlr_total}</DataTable.Cell>
+                                                                <DataTable.Cell>{ formatMoney(item.vlr_total) }</DataTable.Cell>
                                                             </DataTable.Row>
                                                         </Swipeable>
                                                     )

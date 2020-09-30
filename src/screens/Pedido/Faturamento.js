@@ -13,6 +13,7 @@ import { TextInputMask } from 'react-native-masked-text'
 import { Button, Card, DataTable } from 'react-native-paper'
 import { connect } from 'react-redux'
 
+import getRealm from '../../realm/realm'
 import {formatMoney} from '../../components/Functions'
 import { addForma, removeForma } from '../../store/actions/pedido'
 import FormInput from '../../components/Form/Input'
@@ -20,12 +21,13 @@ import DatePicker from '../../components/Form/Datepicker'
 import PesquisaFormaPagamento from '../../components/Faturamento/PesquisaFormaPagamento'
 import commonStyles from '../../commonStyles'
 import moment from 'moment'
+import 'moment/locale/pt-br'
 
-const formaInicial = {vlr_total: '', array_parcelas: [], qtd_dias: '', nro_parcelas: '', forma_selecionada: {}, primeira_cobranca: '', primeira_cobranca_formatada: ''}
+const formaInicial = {vlr_total: '', array_parcelas: [], qtd_dias: '', nro_parcelas: '', forma_pagamento: {}, primeira_cobranca: '', primeira_cobranca_formatada: ''}
 
 class FormFormasPagamento extends Component {
     state = {
-        forma: formaInicial,
+        forma: {...formaInicial},
         faturamento: {
             vlr_bruto: '',
             vlr_desconto: '',
@@ -48,25 +50,71 @@ class FormFormasPagamento extends Component {
         )
     }
 
-    salvarPedido = () => {
-        console.log("enjtrou")
+    salvarPedido = async () => {
+        let realm = (await getRealm())
+        try {
+            const lastPedido = realm.objects('Pedido').sorted('id', true)
+            const lastId = lastPedido.length > 0 ? lastPedido[0].id : 0
+            let pessoa = this.props.pedido.pessoa
+            let itens = this.props.pedido.itens.map(item => {
+                item.vlr_desconto = item.vlr_desconto == '' ? 0.00 : item.vlr_desconto
+                return item
+            })
+            
+            let pagamentos = this.props.pedido.formasPagamento.map(formaFor => {
+                let formaReturn = { 
+                    ...formaFor,
+                    parcelas: formaFor.array_parcelas
+                }
+                return formaReturn
+            })
+            let pedido = {
+                id: lastId+1,
+                pessoa,
+                itens,
+                pagamentos,
+                vlr_liquido: this.state.faturamento.vlr_liquido,
+                vlr_bruto: this.state.faturamento.vlr_bruto,
+                vlr_desconto: this.state.faturamento.vlr_desconto == '' ? 0.00 : this.state.faturamento.vlr_desconto,
+                data_criacao: moment().locale('pt-br').format('YYYY-MM-DD')
+            }
+
+            realm.write(() => {
+                realm.create('Pedido', pedido, 'modified')
+            })
+    
+            Alert.alert('Sucesso!', 'Pedido cadastrada com sucesso.', [{
+                text: 'OK',
+                onPress: this.props.navigation.navigate('ListarPedido'),
+            }])
+        } catch (e) {
+            Alert.alert('Atenção!', `Erro ao cadastrar pedido. ${e}`)
+        }
     }
 
     calcularParcelas = () => {
-        let dataBase = moment(this.state.forma.primeira_cobranca)
+        let dataBase = moment(this.state.forma.primeira_cobranca).locale('pt-br')
         let valorTotal = this.state.forma.vlr_total
         let valorParcela = (this.state.forma.vlr_total / this.state.forma.nro_parcelas).toFixed(2)
-        let parcelas = new Array(this.state.forma.nro_parcelas).fill({nro_parcela: 1, valor_original: valorParcela, data_vencimento: dataBase.clone()})
-        valorTotal -= valorParcela
-                
+        let parcelas = new Array(this.state.forma.nro_parcelas)
+            .fill({
+                nro_parcela: 1,
+                valor_original: parseFloat(valorParcela),
+                data_vencimento: dataBase.clone().format('YYYY-MM-DD'),
+                data_vencimento_formatada: dataBase.clone().format('D[/]MM[/]YYYY')})
+        
         parcelas.forEach((_, index) => {
             if (index + 1 === parcelas.length) valorParcela = valorTotal.toFixed(2)
+            valorTotal -= valorParcela
 
             if (index !== 0) {
+                let dataVencimento = dataBase.add({days: this.state.forma.qtd_dias}).clone()
+
                 parcelas[index] = {
                     nro_parcela: index + 1,
-                    valor_original: valorParcela,
-                    data_vencimento: dataBase.add(this.state.forma.qtd_dias, 'days').clone()
+                    valor_original: parseFloat(valorParcela),
+                    data_vencimento: dataVencimento.format('YYYY-MM-DD'),
+                    data_vencimento_formatada: dataVencimento.format('D[/]MM[/]YYYY')
                 }
             }
         })
@@ -128,13 +176,11 @@ class FormFormasPagamento extends Component {
         this.setState({ forma })
     }
 
-    setaForma = forma_selecionada => {
-        let forma = {formaInicial, forma_selecionada}
+    setaForma = forma_pagamento => {
+        let forma = {...formaInicial, forma_pagamento}
         forma.vlr_total = this.state.faturamento.vlr_restante
-
-        forma.primeira_cobranca = new Date()
         forma.qtd_dias = 30
-        forma.nro_parcelas = 3
+        forma.nro_parcelas = 1
 
         this.setState( { forma, faturamento: {...this.state.faturamento, vlr_restante: 0, vlr_restante_formatado: '0,00'} } )
     }
@@ -143,7 +189,6 @@ class FormFormasPagamento extends Component {
         this.setState({ forma: {...this.state.forma, vlr_total} })
         let vlrRestante = this.state.faturamento.vlr_bruto - vlr_total
         this.setState({ faturamento: {...this.state.faturamento, vlr_restante: vlrRestante, vlr_restante_formatado: formatMoney(vlrRestante)} })
-        console.log(this.state.faturamento)
     }
 
     getFormPrazo = () => {
@@ -242,7 +287,7 @@ class FormFormasPagamento extends Component {
                                             return (
                                                 <DataTable.Row underlayColor='blue' rippleColor='red' key={index}>
                                                     <DataTable.Cell style={ styles.cellDatatable }>{ parcela.nro_parcela }</DataTable.Cell>
-                                                    <DataTable.Cell style={ styles.cellDatatable }>{ moment(parcela.data_vencimento).format('D[/]MM[/]YYYY') }</DataTable.Cell>
+                                                    <DataTable.Cell style={ styles.cellDatatable }>{ parcela.data_vencimento_formatada }</DataTable.Cell>
                                                     <DataTable.Cell style={ styles.cellDatatable }>{ formatMoney(parcela.valor_original)}</DataTable.Cell>
                                                 </DataTable.Row>
                                             )
@@ -391,14 +436,14 @@ class FormFormasPagamento extends Component {
                                 <Card.Content>
                                     <PesquisaFormaPagamento
                                         disabled={this.state.faturamento.vlr_restante_formatado == '0,00'}
-                                        value={ this.state.forma.forma_selecionada.id != undefined ? this.state.forma.forma_selecionada.nome : 'Buscar forma pagamento..' }
+                                        value={ this.state.forma.forma_pagamento.id != undefined ? this.state.forma.forma_pagamento.nome : 'Buscar forma pagamento..' }
                                         input={this.setaForma}
                                     />
 
                                     {   
-                                        this.state.forma.forma_selecionada.tipo !== undefined ? 
+                                        this.state.forma.forma_pagamento.tipo !== undefined ? 
                                         (
-                                            this.state.forma.forma_selecionada.tipo == 'VISTA' ? 
+                                            this.state.forma.forma_pagamento.tipo == 'VISTA' ? 
                                             this.getFormVista() : 
                                             this.getFormPrazo()
                                         ) :
@@ -428,9 +473,9 @@ class FormFormasPagamento extends Component {
                                                                 key={index}
                                                             >
                                                                 <DataTable.Row underlayColor='blue' rippleColor='red' key={index}>
-                                                                    <DataTable.Cell style={ styles.cellDatatable }>{ forma.forma_selecionada.nome }</DataTable.Cell>
+                                                                    <DataTable.Cell style={ styles.cellDatatable }>{ forma.forma_pagamento.nome }</DataTable.Cell>
                                                                     <DataTable.Cell style={ styles.cellDatatable }>{ formatMoney(forma.vlr_total) }</DataTable.Cell>
-                                                                    <DataTable.Cell style={ styles.cellDatatable }>{ forma.array_parcelas == undefined ? 0 : forma.array_parcelas.length }</DataTable.Cell>
+                                                                    <DataTable.Cell style={ styles.cellDatatable }>{ forma.array_parcelas == undefined ? '----' : forma.array_parcelas.length }</DataTable.Cell>
                                                                 </DataTable.Row>
                                                             </Swipeable>
                                                         )

@@ -1,16 +1,19 @@
 import React, { Component } from 'react'
-import {View, ScrollView, StyleSheet} from 'react-native'
+import {View, ScrollView, StyleSheet, Alert} from 'react-native'
 import commonStyles from '../../commonStyles'
-import { TextInput, Button } from 'react-native-paper'
+import { Button } from 'react-native-paper'
 import { TextInputMask } from 'react-native-masked-text'
 import { validateCnpj } from 'react-native-masked-text/dist/lib/masks/cnpj.mask'
 import { validateCPF } from 'react-native-masked-text/dist/lib/masks/cpf.mask'
+
+import moment from 'moment'
+import 'moment/locale/pt-br'
 
 import getRealm from '../../realm/realm';
 import FormInput from '../../components/Form/Input'
 import PesquisaCidade from '../../components/Pessoa/PesquisaCidade'
 
-const pessoaInicial = {ativa: '1', nome: '', tipo: 1, cpf: '', cnpj: '', razao_social: '', fantasia: '', cidade: '', cep: '', endereco: '', endereco_nro: '', bairro: '', complemento: '',}
+const pessoaInicial = {ativo: '1', nome: 'teste data', tipo: 1, cpf: '', cnpj: '', razao_social: '', fantasia: '', cidade: '', cep: '99840000', endereco: 'dasas', endereco_nro: '1231', bairro: 'centro', complemento: '',}
 export default class AddPessoa extends Component {
     state = {
         showModalCidade: false,
@@ -84,33 +87,36 @@ export default class AddPessoa extends Component {
     }
 
     salvar = async () => {
-        let realm = (await getRealm())
-        let pessoa = this.state.pessoa
-        
-        if (!this.state.modoEditar) {
-            const lastPessoa = realm.objects('Pessoa').sorted('id', true)
-            const lastId = lastPessoa.length > 0 ? lastPessoa[0].id : 0
+        try {
+            let realm = (await getRealm())
+            let pessoa = this.state.pessoa
             
-            pessoa.id = lastId + 1
-            pessoa.endereco_nro = parseInt(pessoa.endereco_nro)
-            delete pessoa.cidade
-        }
-        
-        realm.write(() => {
-            realm.create('Pessoa', pessoa, 'modified')
-        })
+            if (!this.state.modoEditar) {
+                const lastPessoa = realm.objects('Pessoa').sorted('id', true)
+                const lastId = lastPessoa.length > 0 ? lastPessoa[0].id : 0
+                
+                pessoa.id = lastId + 1
+            }
 
-        this.props.navigation.navigate('ListarPessoa')
+            pessoa.data_criacao = moment().locale('pt-br').format('YYYY-MM-DD')
+            console.log(pessoa.data_criacao)
+            realm.write(() => {
+                realm.create('Pessoa', pessoa, 'modified')
+            })
+    
+            Alert.alert('Sucesso!', 'Pessoa cadastrada com sucesso.', [{
+                text: 'OK',
+                onPress: this.props.navigation.navigate('ListarPessoa'),
+            }])
+        } catch (e) {
+            Alert.alert('Atenção!', `Erro ao cadastrar pessoa. ${e}`)
+        }
     }
 
     async componentDidMount() {
-        if (this.props.route.params !== undefined && this.props.route.params.id !== undefined) {
-            let realm = (await getRealm())
-            let pessoa = realm.objects('Pessoa').filtered(`id = "${this.props.route.params.id}"`)[0]
-            pessoa.cidade = realm.objects('Cidade')[0]
-            this.setState({ modoEditar: true, pessoa: {...pessoa, cidade: {}} })
-        } else {
-            console.log("State: ", this.state.pessoa.nome)
+        if (this.props.route.params !== undefined && this.props.route.params.pessoaID !== undefined) {
+            let pessoa = (await getRealm()).objects("Pessoa").filtered(`id = ${this.props.route.params.pessoaID}`)[0]
+            this.setState({ modoEditar: true, pessoa })
         }
     }
 
@@ -118,18 +124,10 @@ export default class AddPessoa extends Component {
         return (
             <View style={commonStyles.containerForm}>
                 <ScrollView>
-                    <PesquisaCidade
-                        input={cidade => {
-                            this.setState({ showModalCidade: false, pessoa: {...this.state.pessoa, cidade: cidade} })
-                        }}
-                        onCancel={() => this.setState({ showModalCidade: false })}
-                        isVisible={this.state.showModalCidade}
-                    />
-                    
                     <FormInput 
                         checkbox
                         label="Ativo"
-                        status={this.state.pessoa.ativo ? 'checked' : 'unchecked'}
+                        status={this.state.pessoa.ativo = '1' ? 'checked' : 'unchecked'}
                         onPress={() => {
                             this.setState({ pessoa: {...this.state.pessoa, ativo: !this.state.pessoa.ativo} })
                         }}
@@ -156,16 +154,9 @@ export default class AddPessoa extends Component {
 
                     { this.getFormTipo() }
 
-                    <FormInput
-                        label="Cidade"
-                        left={
-                            <TextInput.Icon 
-                                name="account"
-                                onPress={() => this.setState({ showModalCidade: true })}
-                            />
-                        }
-                        disabled
-                        value={ this.state.pessoa.cidade.nome !== undefined ? `${this.state.pessoa.cidade.nome} - ${this.state.pessoa.cidade.uf}` : '' }
+                    <PesquisaCidade
+                        input={cidade => this.setState({ showModalCidade: false, pessoa: {...this.state.pessoa, cidade: cidade} })}
+                        value={ this.state.pessoa.cidade.nome !== undefined ? `${this.state.pessoa.cidade.nome} - ${this.state.pessoa.cidade.uf}` : 'Cidade' }
                     />
 
                     <FormInput

@@ -3,6 +3,9 @@ import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import Header from '../../components/Header'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { DataTable, Searchbar } from 'react-native-paper';
+import moment from 'moment'
+import 'moment/locale/pt-br'
+
 import getRealm from '../../realm/realm';
 import PesquisaPessoa from '../../components/Pessoa/PesquisaPessoa'
 import {formatMoney} from '../../components/Functions'
@@ -10,35 +13,34 @@ import {formatMoney} from '../../components/Functions'
 class ListarPedido extends Component {
     state = {
         pedidos: [],
-        sorting: 'descending',
         parametrosBuscar: '',
         showModalPesquisaPessoa: false
     }
 
     componentDidMount = async () => {
-        //let produtos = (await getRealm()).objects('Produto')
-        //this.setState({ produtos })
+        let pedidos = (await getRealm()).objects('Pedido')
+        this.setState({ pedidos })
     }
 
     buscaPedido = async parametrosBuscar => {
-        /*this.setState({ parametrosBuscar })
+        this.setState({ parametrosBuscar })
         let realm = (await getRealm())
         
-        let produtos = []
+        let pedidos = []
         if (this.state.parametrosBuscar != '') {
-            produtos = realm.objects('Produto').filtered(`nome like "*${this.state.parametrosBuscar}*"`)
+            pedidos = realm.objects('Pedido')
+                        .filtered(`pessoa.nome like "*${this.state.parametrosBuscar}*" OR pessoa.razao_social like "*${this.state.parametrosBuscar}*" OR pessoa.fantasia like "*${this.state.parametrosBuscar}*"`)
+                        .sorted('data_criacao')
         } else {
-            produtos = realm.objects('Produto')
+            pedidos = realm.objects('Pedido')
         }
-        this.setState({ produtos })*/
+        this.setState({ pedidos })
     }
 
     addPedido = pessoa => {
         this.props.navigation.navigate('AddPedido', {pessoa})
         this.setState({ showModalPesquisaPessoa: false })
     }
-
-    controlaSortTable = () => this.setState({ sorting: this.state.sorting == 'descending' ? 'ascending' : 'descending' })
 
     render() {
         return (
@@ -58,20 +60,22 @@ class ListarPedido extends Component {
                     />
 
                     <ScrollView>
-                        <DataTable style={{flex: 4}}>
+                        <DataTable style={styles.datatable}>
                             <DataTable.Header>
-                                <DataTable.Title style={{flex: 2}} sortDirection={this.state.sorting} onPress={this.controlaSortTable}>Nome</DataTable.Title>
-                                <DataTable.Title style={{justifyContent: 'flex-end'}}>Estoque</DataTable.Title>
-                                <DataTable.Title style={{justifyContent: 'flex-end'}}>Valor (R$)</DataTable.Title>
+                                <DataTable.Title style={styles.datatableCellUm}>Data</DataTable.Title>
+                                <DataTable.Title style={styles.datatableCellDois}>Nome</DataTable.Title>
+                                <DataTable.Title style={styles.datatableCellTres}>Produtos</DataTable.Title>
+                                <DataTable.Title style={styles.datatableCellQuatro}>Valor (R$)</DataTable.Title>
                             </DataTable.Header>
 
                             {
                                 this.state.pedidos.map((pedido, index) => {
                                     return (
                                         <DataTable.Row key={index}>
-                                            <DataTable.Cell>{ pedido.nome }</DataTable.Cell>
-                                            <DataTable.Cell numeric>{ formatMoney(pedido.qtd_estoque) }</DataTable.Cell>
-                                            <DataTable.Cell numeric>{ formatMoney(pedido.vlr_venda) }</DataTable.Cell>
+                                            <DataTable.Cell style={styles.datatableCellUm}>{ moment(pedido.data_criacao).locale('pt-br').format('D/MM/YYYY') }</DataTable.Cell>
+                                            <DataTable.Cell style={styles.datatableCellDois}>{ pedido.pessoa.tipo == 2 ? pedido.pessoa.razao_social : pedido.pessoa.nome }</DataTable.Cell>
+                                            <DataTable.Cell style={styles.datatableCellTres} numeric>{ pedido.itens.length }</DataTable.Cell>
+                                            <DataTable.Cell style={styles.datatableCellQuatro} numeric>{ formatMoney(pedido.vlr_liquido) }</DataTable.Cell>
                                         </DataTable.Row>
                                     )
                                 })
@@ -103,7 +107,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'blue'
-    }
+    },
+    datatable: {
+        flex: 6
+    },
+    datatableCellUm: {
+        flex: 2
+    },
+    datatableCellDois: {
+        flex: 2
+    },
+    datatableCellTres: {
+        flex: 1,
+        justifyContent: 'flex-end'
+    },
+    datatableCellQuatro: {
+        flex: 1,
+        justifyContent: 'flex-end'
+    },
 })
 
 export default ListarPedido

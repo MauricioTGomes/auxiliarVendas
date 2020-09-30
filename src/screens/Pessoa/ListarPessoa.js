@@ -23,8 +23,8 @@ class ListarPessoa extends Component {
 
     addPessoa = () => this.props.navigation.navigate('AddPessoa')
 
-    editarPessoa = pessoaId => {
-        this.props.navigation.navigate('AddPessoa', {id: pessoaId})
+    editarPessoa = pessoaID => {
+        this.props.navigation.navigate('AddPessoa', {pessoaID})
     }
 
     controlaSortTable = () => this.setState({ sorting: this.state.sorting == 'descending' ? 'ascending' : 'descending' })

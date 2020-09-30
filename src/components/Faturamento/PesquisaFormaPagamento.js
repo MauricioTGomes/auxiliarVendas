@@ -21,12 +21,13 @@ export default class PesquisaFormaPagamento extends Component {
 
     setaNome = async nome => {
         this.setState({ nome })
+        let realm = (await getRealm())
+        let formas = realm.objects('FormaPagamento')
         
         if (this.state.nome != '') {
-            //let formas = (await getRealm()).objects('Produto').filtered(`nome like "*${this.state.nome}*"`)
-            let formas = [{nome: 'Á vista', tipo: 'VISTA', id: 1}, {nome: 'Á prazo', tipo: 'PRAZO', id: 2}]
-            this.setState({ formas })
+            formas = realm.objects('FormaPagamento').filtered(`nome like "*${this.state.nome}*"`)
         }
+        this.setState({ formas })
     }
 
     showModal = () => this.setState({ showModal: !this.state.showModal })
@@ -37,9 +38,13 @@ export default class PesquisaFormaPagamento extends Component {
     }
 
     async componentDidMount() {
-        //let formas = (await getRealm()).objects('Produto')
-        let formas = [{nome: 'Á vista', tipo: 'VISTA', id: 1}, {nome: 'Á prazo', tipo: 'PRAZO', id: 2}]
-        this.setState({ formas })
+        //let realm = (await getRealm())
+        //realm.write(() => {
+            //realm.create('FormaPagamento', {nome: 'Á vista', tipo: 'VISTA', id: 1})
+            //realm.create('FormaPagamento', {nome: 'Á prazo', tipo: 'PRAZO', id: 2})
+            //realm.create('FormaPagamento', {nome: 'Boleto', tipo: 'BOLETO', id: 3})
+        ///})
+        this.setaNome('')
     }
     
     render() {
