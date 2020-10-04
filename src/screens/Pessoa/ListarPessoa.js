@@ -47,11 +47,11 @@ class ListarPessoa extends Component {
                                 <DataTable.Row key={index}>
                                     <DataTable.Cell style={{flex: 2}}>
                                         <View>
-                                            <Text>{pessoa.tipo == 1 ? pessoa.nome : pessoa.fantasia}</Text>
+                                            <Text>{pessoa.nomeFantasia}</Text>
                                             {pessoa.tipo == 2 ? (<Text>{pessoa.razao_social}</Text>) : false}
                                         </View>
                                     </DataTable.Cell>
-                                    <DataTable.Cell style={{flex: 2, justifyContent: 'center'}} numeric>{pessoa.tipo == 1 ? pessoa.cpf : pessoa.cnpj}</DataTable.Cell>
+                                    <DataTable.Cell style={{flex: 2, justifyContent: 'center'}} numeric>{ pessoa.cpfCnpj }</DataTable.Cell>
                                     <DataTable.Cell style={{justifyContent: 'flex-end'}}>
                                         <TouchableOpacity onPress={this.editarPessoa}>
                                             <Icon size={20} name='pencil' color='green' onPress={() => this.editarPessoa(pessoa.id)}/>

@@ -32,8 +32,6 @@ class ListarProduto extends Component {
 
     controlaSortTable = () => this.setState({ sorting: this.state.sorting == 'descending' ? 'ascending' : 'descending' })
 
-    
-
     render() {
         return (
             <View style={{flex: 1}}>

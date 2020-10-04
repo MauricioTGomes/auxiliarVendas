@@ -1,6 +1,13 @@
 import Realm from 'realm';
 
-import { CidadeSchema, PessoaSchema, ProdutoSchema, FormaPagamentoSchema, ParcelaSchema, PagamentoSchema, ItemSchema, PedidoSchema } from './schemas';
+import PessoaSchema from './schemas/Pessoa'
+import CidadeSchema from './schemas/Cidade'
+import ProdutoSchema from './schemas/Produto'
+import FormaPagamentoSchema from './schemas/FormaPagamento'
+import ParcelaSchema from './schemas/Parcela'
+import PagamentoSchema from './schemas/Pagamento'
+import ItemSchema from './schemas/Item'
+import PedidoSchema from './schemas/Pedido'
 
 export default function getRealm() {
     return Realm.open(

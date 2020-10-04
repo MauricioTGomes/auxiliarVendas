@@ -23,6 +23,10 @@ target 'auxiliarVendas' do
 
   pod 'RNDateTimePicker', :path => '../node_modules/@react-native-community/datetimepicker'
 
+  pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
+
+  pod 'react-native-netinfo', :path => '../node_modules/@react-native-community/netinfo'
+
   target 'auxiliarVendasTests' do
     inherit! :complete
     # Pods for testing

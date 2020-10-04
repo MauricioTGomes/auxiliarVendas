@@ -156,7 +156,7 @@ export default class AddPessoa extends Component {
 
                     <PesquisaCidade
                         input={cidade => this.setState({ showModalCidade: false, pessoa: {...this.state.pessoa, cidade: cidade} })}
-                        value={ this.state.pessoa.cidade.nome !== undefined ? `${this.state.pessoa.cidade.nome} - ${this.state.pessoa.cidade.uf}` : 'Cidade' }
+                        value={ this.state.pessoa.cidade.nome !== undefined ? this.state.pessoa.cidade.nomeEstado : 'Cidade' }
                     />
 
                     <FormInput

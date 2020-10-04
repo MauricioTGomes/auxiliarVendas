@@ -67,7 +67,7 @@ export default class PesquisaCidade extends Component {
                                 this.state.cidades.map((cidade, index) => {
                                     return (
                                         <DataTable.Row onPress={() => this.setaCidade(cidade)} key={index}>
-                                            <DataTable.Cell style={styles.cell}>{`${cidade.nome} - ${cidade.uf}`}</DataTable.Cell>
+                                            <DataTable.Cell style={styles.cell}>{ cidade.nomeEstado }</DataTable.Cell>
                                         </DataTable.Row>
                                     )
                                 })

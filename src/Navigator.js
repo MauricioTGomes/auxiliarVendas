@@ -3,16 +3,19 @@ import { NavigationContainer } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createAppContainer, createSwitchNavigator } from 'react-navigation'
 import { Provider } from 'react-redux'
 
 import storeConfig from './store/storeConfig'
 
+import Auth from './screens/Auth/Auth'
+import AuthOrApp from './screens/Auth/AuthOrApp'
 import ListarProduto from './screens/Produto/ListarProduto'
-
+import Home from './screens/Home'
+import sincronismo from './hocs/Sincroniza'
 import ListarPedido from './screens/Pedido/ListarPedido'
 import AddPedido from './screens/Pedido/AddPedido'
 import Faturamento from './screens/Pedido/Faturamento'
-
 import ListarPessoa from './screens/Pessoa/ListarPessoa'
 import AddPessoa from './screens/Pessoa/AddPessoa'
 
@@ -38,22 +41,22 @@ function StackPedido() {
     );
 }
 
-export default function Navigator() {
+const Navigator = () => {
     const store = storeConfig()
     
     return (
         <Provider store={store}>
             <NavigationContainer>
-                <Tab.Navigator initialRouteName='Pedido' tabBarOptions={
+                <Tab.Navigator initialRouteName='Home' tabBarOptions={
                         {
                             inactiveBackgroundColor: '#7c2bff', 
                             activeBackgroundColor: '#7c2bff',
                             style: {height: 55},
-                labelStyle: {fontSize: 15},
+                            labelStyle: {fontSize: 15},
                         }
                     }>
                     <Tab.Screen 
-                        name="Home" component={ListarPessoa} 
+                        name="Home" component={Home} 
                         options={{
                             tabBarLabel: 'Home',
                             tabBarIcon: ({ color, size }) => (
@@ -94,3 +97,22 @@ export default function Navigator() {
         </Provider>
     );
 }
+
+
+const mainRoutes = {
+    AuthOrApp: {
+        name: 'AuthOrApp',
+        screen: AuthOrApp
+    },
+    Auth: {
+        name: 'Auth',
+        screen: Auth
+    },
+    Home: {
+        name: 'Navigator',
+        screen: Navigator
+    }
+}
+
+const mainNavigator = createSwitchNavigator(mainRoutes, { initialRouteName: 'AuthOrApp' })
+export default sincronismo(createAppContainer(mainNavigator));

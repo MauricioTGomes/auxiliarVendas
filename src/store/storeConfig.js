@@ -7,9 +7,11 @@ import {
 import thunk from 'redux-thunk'
 
 import pedidoReducer from './reducers/pedido'
+import authReducer from './reducers/auth'
 
 const reducers = combineReducers({
     pedido: pedidoReducer,
+    auth: authReducer
 })
 
 const storeConfig = () => {
