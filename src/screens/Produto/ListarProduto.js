@@ -13,8 +13,7 @@ class ListarProduto extends Component {
     }
 
     componentDidMount = async () => {
-        let produtos = (await getRealm()).objects('Produto')
-        this.setState({ produtos })
+        this.buscaProduto('')
     }
 
     buscaProduto = async parametrosBuscar => {
@@ -27,6 +26,7 @@ class ListarProduto extends Component {
         } else {
             produtos = realm.objects('Produto')
         }
+
         this.setState({ produtos })
     }
 

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+import axios from 'axios'
 
 export default class AuthOrApp extends Component {
     async componentDidMount() {
@@ -9,12 +10,12 @@ export default class AuthOrApp extends Component {
         
         try {
             userData = JSON.parse(userDataJson)
-            //axios.defaults.headers.common['Authorization'] = `bearer ${userData.token}`
         } catch(e) {
             
         }
-
+        
         if (userData && userData.token) {
+            axios.defaults.headers.common['Authorization'] = `bearer ${userData.token}`
             this.props.navigation.navigate('Home')
         } else {
             this.props.navigation.navigate('Auth')

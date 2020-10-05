@@ -4,11 +4,12 @@ import backgroundImage from '../../../assets/image/images.jpg'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import {Button} from 'react-native-paper'
 import AsyncStorage from '@react-native-community/async-storage'
+import axios from 'axios'
 
 const initialState = {
     name: 'Mauricio Gomes',
-    email: 'mauricio@gmail.com',
-    password: '',
+    email: 'mauricio@numerama.com.br',
+    password: 'M@u96218195',
 }
 
 class Auth extends Component {   
@@ -17,13 +18,20 @@ class Auth extends Component {
 
     signin = async () => {
         let userData = this.state
-        if (this.state.password == '123456') {
-            userData.token = 'dsauidhasuihdiuashdiuhas'
+        
+        await axios.post(`https://app.numerama.com.br/api/login`, {
+            email: this.state.email,
+            password: this.state.password,
+        }).then(resp => {
+            axios.defaults.headers.common['Authorization'] = `bearer ${resp.data.token}`
+            userData.token = resp.data.token
             AsyncStorage.setItem('userData',  JSON.stringify(userData))
             this.props.navigation.navigate('Home')
-        } else {
-            Alert.alert('Atenção!', 'Dados do usuário estão incorretos')
-        }
+        }).catch(resp => {
+            if (resp.response.data.error != undefined) {
+                Alert.alert('Atenção!', resp.response.data.error)
+            }
+        })
     }
 
     render() {
