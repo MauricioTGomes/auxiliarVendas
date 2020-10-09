@@ -110,9 +110,9 @@ const mainRoutes = {
     },
     Home: {
         name: 'Navigator',
-        screen: Navigator
+        screen: sincronismo(Navigator)
     }
 }
 
 const mainNavigator = createSwitchNavigator(mainRoutes, { initialRouteName: 'AuthOrApp' })
-export default sincronismo(createAppContainer(mainNavigator));
+export default createAppContainer(mainNavigator);

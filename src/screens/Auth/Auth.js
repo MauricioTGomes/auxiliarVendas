@@ -22,8 +22,8 @@ class Auth extends Component {
         await axios.post(`https://app.numerama.com.br/api/login`, {
             email: this.state.email,
             password: this.state.password,
-        }).then(resp => {
-            axios.defaults.headers.common['Authorization'] = `bearer ${resp.data.token}`
+        }).then(async resp => {
+            axios.defaults.headers.common['Authorization'] = `bearer ${resp.data.token}`            
             userData.token = resp.data.token
             AsyncStorage.setItem('userData',  JSON.stringify(userData))
             this.props.navigation.navigate('Home')

@@ -1,6 +1,17 @@
+import moment from 'moment'
+import 'moment/src/locale/pt-br'
+
 class Pessoa {
     get nomeFantasia() {
         return this.tipo == 1 ? this.nome : this.fantasia;
+    }
+    
+    get ultimaAlteracao() {
+        return this.data_alteracao != null ? moment(this.data_alteracao, "YYYY-MM-DDTHH:MM:SS").utc(false).locale('pt-br').format("YYYY-MM-DD H:MM:s") : false
+    }
+
+    get nomeRazaoSocial() {
+        return this.tipo == 1 ? this.nome : (this.razao_social);
     }
 
     get cpfCnpj() {
@@ -14,6 +25,8 @@ Pessoa.schema = {
     properties: {
         id: { type: 'int', indexed: true },
         id_numerama: 'int?',
+        ativo: 'int?',
+        email: 'string?',
         cidade: {type: 'Cidade?'},
         nome: 'string?',
         cpf: 'string?',
@@ -28,6 +41,7 @@ Pessoa.schema = {
         limite_credito: 'double?',
         tipo: 'int',
         data_criacao: 'date?',
+        data_alteracao: 'date?',
     },
 };
 

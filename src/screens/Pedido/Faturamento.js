@@ -64,6 +64,7 @@ class FormFormasPagamento extends Component {
             let pagamentos = this.props.pedido.formasPagamento.map(formaFor => {
                 let formaReturn = { 
                     ...formaFor,
+                    vlr_restante: formaFor.vlr_total,
                     parcelas: formaFor.array_parcelas
                 }
                 return formaReturn

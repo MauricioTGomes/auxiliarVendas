@@ -4,21 +4,29 @@ import { Alert } from 'react-native'
 
 //let api = 'http://localhost:8000/';
 //if (process.env.NODE_ENV !== 'development') {
-    let api = 'https://app.numerama.com.br/'//'192.168.56.1:3000/'
+export let serve = 'https://app.numerama.com.br/'//'192.168.56.1:3000/'
 //}
 
 export function post(url, data, functionSuccess) {
-    axios.post(api + url, data).then(response => {
+    axios.post(serve + url, data).then(response => {
         functionSuccess(response)
     }).catch(err => {
-        Alert.alert("Atenção!", err.response.data.message)
+        let mensagem = err.response.data.message
+        if (err.response.status == '404') {
+            mensagem = "Página não existe"
+        }
+        Alert.alert("Atenção!", "Erro ao realizar operação! \r" + mensagem)
     })
 }
 
-export function get(url, data, functionSuccess) {
-    axios.get(api + url).then(response => {
+export function get(url, functionSuccess) {
+    axios.get(serve + url).then(response => {
         functionSuccess(response)
     }).catch(err => {
-        Alert.alert("Atenção!", err.response.data.message)
+        let mensagem = err.response.data.message
+        if (err.response.status == '404') {
+            mensagem = "Página não existe"
+        }
+        Alert.alert("Atenção!", "Erro ao realizar operação! \r" + mensagem)
     })
 }

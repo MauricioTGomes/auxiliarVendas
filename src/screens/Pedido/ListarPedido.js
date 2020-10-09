@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import { DataTable, Searchbar } from 'react-native-paper';
 import moment from 'moment'
 import 'moment/locale/pt-br'
+import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
 
 import getRealm from '../../realm/realm';
 import PesquisaPessoa from '../../components/Pessoa/PesquisaPessoa'
@@ -14,27 +15,48 @@ class ListarPedido extends Component {
     state = {
         pedidos: [],
         parametrosBuscar: '',
-        showModalPesquisaPessoa: false
+        showModalPesquisaPessoa: false,
+        loader: true,
+        pagination: {
+            page: 1,
+            fim: 1,
+            inicio: 1,
+            totalItens: 0
+        }
     }
 
     componentDidMount = async () => {
-        let pedidos = (await getRealm()).objects('Pedido')
-        this.setState({ pedidos })
+        this.buscaPedido('', 1)
     }
 
-    buscaPedido = async parametrosBuscar => {
-        this.setState({ parametrosBuscar })
+    buscaPedido = async (parametrosBuscar, page = 1) => {
+        this.setState({ parametrosBuscar, loader: true })
         let realm = (await getRealm())
         
         let pedidos = []
         if (this.state.parametrosBuscar != '') {
             pedidos = realm.objects('Pedido')
-                        .filtered(`pessoa.nome like "*${this.state.parametrosBuscar}*" OR pessoa.razao_social like "*${this.state.parametrosBuscar}*" OR pessoa.fantasia like "*${this.state.parametrosBuscar}*"`)
+                        .filtered(`pessoa.nome CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.fantasia CONTAINS[c] "${this.state.parametrosBuscar}"`)
                         .sorted('data_criacao')
         } else {
             pedidos = realm.objects('Pedido')
         }
-        this.setState({ pedidos })
+        
+        let totalItens = pedidos.length
+        let pageInicial = (page * 50) - 50
+        
+        let pagination = {
+            totalItens ,
+            page,
+            inicio: pageInicial + 1,
+            fim: totalItens < 50 ? totalItens : pageInicial + 50,
+        }
+
+        this.setState({ 
+            pagination,
+            pedidos: pedidos.slice(pageInicial, pageInicial + 50),
+            loader: false
+        })
     }
 
     addPedido = pessoa => {
@@ -45,7 +67,10 @@ class ListarPedido extends Component {
     render() {
         return (
             <View style={{flex: 1}}>
+                <OrientationLoadingOverlay visible={this.state.loader} color="white" indicatorSize="large" messageFontSize={24} message="Buscando pessoas..."/>
+
                 <Header/>
+                
                 <View style={{flex: 7}}>
                     <PesquisaPessoa
                         input={this.addPedido}
@@ -73,13 +98,20 @@ class ListarPedido extends Component {
                                     return (
                                         <DataTable.Row key={index}>
                                             <DataTable.Cell style={styles.datatableCellUm}>{ moment(pedido.data_criacao).locale('pt-br').format('D/MM/YYYY') }</DataTable.Cell>
-                                            <DataTable.Cell style={styles.datatableCellDois}>{ pedido.pessoa.tipo == 2 ? pedido.pessoa.razao_social : pedido.pessoa.nome }</DataTable.Cell>
+                                            <DataTable.Cell style={styles.datatableCellDois}>{ pedido.pessoa != null ? pedido.pessoa.nomeRazaoSocial : 'Não informado' }</DataTable.Cell>
                                             <DataTable.Cell style={styles.datatableCellTres} numeric>{ pedido.itens.length }</DataTable.Cell>
                                             <DataTable.Cell style={styles.datatableCellQuatro} numeric>{ formatMoney(pedido.vlr_liquido) }</DataTable.Cell>
                                         </DataTable.Row>
                                     )
                                 })
                             }
+
+                            <DataTable.Pagination
+                                page={this.state.pagination.page}
+                                numberOfPages={Math.floor(this.state.pagination.totalItens / 50)}
+                                onPageChange={page => this.buscaPedido(this.state.parametrosBuscar, page)}
+                                label={`Mostrando de ${this.state.pagination.inicio} até ${this.state.pagination.fim} de ${this.state.pagination.totalItens} registros`}
+                            />
                         </DataTable>
                     </ScrollView>
                     
@@ -100,7 +132,7 @@ const styles = StyleSheet.create({
     addButton: {
         position: 'absolute',
         right: 30,
-        bottom: 30,
+        bottom: 50,
         width: 50,
         height: 50,
         borderRadius: 25,

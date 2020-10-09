@@ -13,11 +13,11 @@ import getRealm from '../../realm/realm';
 import FormInput from '../../components/Form/Input'
 import PesquisaCidade from '../../components/Pessoa/PesquisaCidade'
 
-const pessoaInicial = {ativo: '1', nome: 'teste data', tipo: 1, cpf: '', cnpj: '', razao_social: '', fantasia: '', cidade: '', cep: '99840000', endereco: 'dasas', endereco_nro: '1231', bairro: 'centro', complemento: '',}
+const pessoaInicial = {ativo_checkbox: 'checked', ativo: 1, nome: '', tipo: 1, cpf: '', cnpj: '', razao_social: '', fantasia: '', cidade: '', cep: '', endereco: '', endereco_nro: '', bairro: '', complemento: '',}
 export default class AddPessoa extends Component {
     state = {
         showModalCidade: false,
-        pessoa: {...pessoaInicial},
+        pessoa: {},
         modoEditar: false,
         controlaCpfCnpj: {
             type: 'cpf',
@@ -25,14 +25,24 @@ export default class AddPessoa extends Component {
         }
     }
 
+    verificaCidades = async () => {
+        let realm = (await getRealm())
+        if (realm.objects('Cidade').length <= 0) {
+            realm.write(() => {
+                realm.create('Cidade', {id: 3, nome: 'Sananduva3', uf: 'RS', codigo_ibge: 123456})
+            })
+        }
+    }
+
     getFormTipo = () => {
-        if (this.state.pessoa.tipo == 1) {
+        let tipo = this.state.pessoa.tipo
+        if (parseInt(tipo) == 1) {
             return (
                 <View>
                     <FormInput
                         label="Nome"
                         value={this.state.pessoa.nome}
-                        onChangeText={nome => this.setState({ pessoa: {...this.state.pessoa, nome} })}
+                        onChangeText={nome => this.setState({ pessoa: { ...this.state.pessoa, nome: nome} })}
                     />
                 </View>
             )
@@ -86,6 +96,17 @@ export default class AddPessoa extends Component {
         return false
     }
 
+    controlaCheckBox = () => {
+        let pessoa = this.state.pessoa
+        let ativoAtual = pessoa.ativo != undefined ? this.state.pessoa.ativo : 0
+        pessoa.ativo = ativoAtual == 1 ? 0 : 1,
+        pessoa.ativo_checkbox = ativoAtual == 1 ? 'unchecked' : 'checked'
+        
+        this.setState({ pessoa })
+        
+        console.log(this.state.pessoa.ativo_checkbox, this.state.pessoa.ativo)
+    }
+
     salvar = async () => {
         try {
             let realm = (await getRealm())
@@ -96,10 +117,11 @@ export default class AddPessoa extends Component {
                 const lastId = lastPessoa.length > 0 ? lastPessoa[0].id : 0
                 
                 pessoa.id = lastId + 1
+                pessoa.data_criacao = moment().locale('pt-br').format('YYYY-MM-DD')
+            } else {
+                pessoa.data_alteracao = moment().locale('pt-br').format('YYYY-MM-DDTHH:MM:SS')
             }
 
-            pessoa.data_criacao = moment().locale('pt-br').format('YYYY-MM-DD')
-            console.log(pessoa.data_criacao)
             realm.write(() => {
                 realm.create('Pessoa', pessoa, 'modified')
             })
@@ -113,10 +135,29 @@ export default class AddPessoa extends Component {
         }
     }
 
+    setaDadosPessoa = ({ id, ativo, nome, tipo, cpf, cnpj, razao_social, fantasia, cidade, cep, endereco, endereco_nro, bairro, complemento, data_criacao }) => {
+        let ativo_checkbox = ativo == 0 ? 'unchecked' : 'checked'
+        this.setState({
+            pessoa: { ...this.state.pessoa, id, ativo, ativo_checkbox, nome, tipo, cpf, cnpj, razao_social, fantasia, cidade, cep, endereco, endereco_nro, bairro, complemento, data_criacao }
+        })
+    }
+
     async componentDidMount() {
+        this.verificaCidades()
+        
         if (this.props.route.params !== undefined && this.props.route.params.pessoaID !== undefined) {
-            let pessoa = (await getRealm()).objects("Pessoa").filtered(`id = ${this.props.route.params.pessoaID}`)[0]
-            this.setState({ modoEditar: true, pessoa })
+            let pessoaBanco = (await getRealm()).objects("Pessoa").filtered(`id = ${this.props.route.params.pessoaID}`)[0]
+            
+            this.setState({
+                modoEditar: true,
+                controlaCpfCnpj: {
+                    valor: pessoaBanco.tipo == 2 ? pessoaBanco.cnpj : pessoaBanco.cpf,
+                    type: pessoaBanco.tipo == 2 ? 'cnpj' : 'cpf'
+                }
+            })
+            this.setaDadosPessoa(pessoaBanco)
+        } else {
+            this.setState({pessoa: pessoaInicial})
         }
     }
 
@@ -127,10 +168,8 @@ export default class AddPessoa extends Component {
                     <FormInput 
                         checkbox
                         label="Ativo"
-                        status={this.state.pessoa.ativo = '1' ? 'checked' : 'unchecked'}
-                        onPress={() => {
-                            this.setState({ pessoa: {...this.state.pessoa, ativo: !this.state.pessoa.ativo} })
-                        }}
+                        status={this.state.pessoa.ativo_checkbox}
+                        onPress={this.controlaCheckBox}
                     />
 
                     <FormInput
@@ -156,7 +195,7 @@ export default class AddPessoa extends Component {
 
                     <PesquisaCidade
                         input={cidade => this.setState({ showModalCidade: false, pessoa: {...this.state.pessoa, cidade: cidade} })}
-                        value={ this.state.pessoa.cidade.nome !== undefined ? this.state.pessoa.cidade.nomeEstado : 'Cidade' }
+                        value={ this.state.pessoa.cidade != undefined && this.state.pessoa.cidade.nome !== undefined ? this.state.pessoa.cidade.nomeEstado : 'Cidade' }
                     />
 
                     <FormInput
