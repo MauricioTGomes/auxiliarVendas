@@ -1,22 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import NetInfo from "@react-native-community/netinfo";
 import { baixarProdutos, baixarPessoas, baixarPedidos } from './services/Functions'
-import getRealm from '../realm/realm'
 
 let inicialState = {timeSinc: 2000, realizandoSincronismo: false}
 const sincronismo = Component => props => {
     let [state, setState] = useState(inicialState);
 
     const iniciaSincronismo = async () => {
-        let realm = await (getRealm())
-        let configuracao = realm.objects('Configuracao')
-        
-        if (configuracao.length <= 0) {
-            realm.write(() => {
-                realm.create('Configuracao', {id: 1})
-            })
-        }
-
         if (!state.realizandoSincronismo) {
             let netInfo = null
             await NetInfo.fetch().then(state => {
@@ -31,14 +21,10 @@ const sincronismo = Component => props => {
                 state = { ...state, realizandoSincronismo: false }
             }
         }
-
-        //setTimeout(function () {
-            //iniciaSincronismo()
-        //}, 10000)
     }
 
     useEffect(() => {
-        iniciaSincronismo()
+        //iniciaSincronismo()
     }, []);
     
     return <Component {...props } />;

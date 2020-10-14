@@ -5,6 +5,8 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import {Button} from 'react-native-paper'
 import AsyncStorage from '@react-native-community/async-storage'
 import axios from 'axios'
+import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
+import getRealm from '../../realm/realm'
 
 const initialState = {
     name: 'Mauricio Gomes',
@@ -13,7 +15,6 @@ const initialState = {
 }
 
 class Auth extends Component {   
-
     state = {...initialState}
 
     signin = async () => {
@@ -26,12 +27,31 @@ class Auth extends Component {
             axios.defaults.headers.common['Authorization'] = `bearer ${resp.data.token}`            
             userData.token = resp.data.token
             AsyncStorage.setItem('userData',  JSON.stringify(userData))
-            this.props.navigation.navigate('Home')
+            //this.props.navigation.navigate('Home')
         }).catch(resp => {
             if (resp.response.data.error != undefined) {
                 Alert.alert('Atenção!', resp.response.data.error)
             }
         })
+    }
+
+    verificaPrimeiroLogin = async () => {
+        let realm  = await (getRealm())
+        
+        try {
+            realm.beginTransaction()
+            let configuracao = realm.objects("Condiguracao")
+            if (configuracao.length <= 0) {
+                realm.create("Condiguracao", {id: 1})
+
+                await axios.post(`https://app.numerama.com.br/api/appHibrido/getFormas`).then(async resp => {
+                    console.log(resp.data)
+                })
+            }
+            realm.commitTransaction() 
+        } catch(_){
+            realm.cancelTransaction()
+        }
     }
 
     render() {
@@ -43,6 +63,9 @@ class Auth extends Component {
 
         return (
             <ImageBackground style={styles.backgroud} source={ backgroundImage }>
+                
+                <OrientationLoadingOverlay visible={true} color="white" indicatorSize="large" messageFontSize={24} message="Buscando produtos..."/>
+
                 <Text style={styles.title}>Pedidos</Text>
 
                 <View style={styles.formContainer}>
