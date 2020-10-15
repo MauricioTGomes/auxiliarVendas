@@ -72,6 +72,7 @@ const baixarPessoas = async () => {
 
             if (pessoas.length > 0) {
                 await pessoas.forEach(pessoa => {
+                    console.log(pessoa)
                     let pessoaBanco = realm.objects('Pessoa').filtered(`id_numerama = ${pessoa.id}`)[0]
                     let lastId = null
                     
@@ -102,6 +103,8 @@ const baixarPessoas = async () => {
                         endereco_nro: pessoa.endereco_nro.toString(),
                         limite_credito: parseFloat(pessoa.limite_credito),
                         tipo: parseInt(pessoa.tipo),
+                        saldo_atrasado: parseFloat(pessoa.saldos.total_atrasado),
+                        saldo_em_dia: parseFloat(pessoa.saldos.total_em_dia)
                     }
     
                     realm.create('Pessoa', pessoaCreate, 'modified')
@@ -377,5 +380,6 @@ export {
     baixarProdutos, 
     baixarPessoas, 
     baixarPedidos,
-    enviaPessoa
+    enviaPessoa,
+    enviaPedido
 }

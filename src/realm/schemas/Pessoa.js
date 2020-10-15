@@ -39,6 +39,8 @@ Pessoa.schema = {
         endereco: 'string?',
         endereco_nro: 'string?',
         limite_credito: 'double?',
+        saldo_atrasado: 'double?',
+        saldo_em_dia: 'double?',
         tipo: 'int',
         data_criacao: 'date?',
         data_alteracao: 'date?',

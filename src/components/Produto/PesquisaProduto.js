@@ -28,7 +28,7 @@ export default class PesquisaProduto extends Component {
         let produtos = []
         
         if (this.state.parametrosBuscar != '' && this.state.parametrosBuscar.length >= 3) {
-            produtos = realm.objects('Produto').filtered(`nome CONTAINS[c] "${this.state.parametrosBuscar}"`)
+            produtos = realm.objects('Produto').filtered(`nome CONTAINS[c] "${this.state.parametrosBuscar}" AND ativo = '1'`)
         }
         this.setState({ 
             produtos: produtos,

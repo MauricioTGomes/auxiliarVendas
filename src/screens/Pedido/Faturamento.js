@@ -13,6 +13,9 @@ import { TextInputMask } from 'react-native-masked-text'
 import { Button, Card, DataTable } from 'react-native-paper'
 import { connect } from 'react-redux'
 
+import NetInfo from "@react-native-community/netinfo";
+import { enviaPedido } from '../../hocs/services/Functions'
+
 import getRealm from '../../realm/realm'
 import {formatMoney} from '../../components/Functions'
 import { addForma, removeForma } from '../../store/actions/pedido'
@@ -80,9 +83,16 @@ class FormFormasPagamento extends Component {
                 data_criacao: moment().locale('pt-br').format('YYYY-MM-DD')
             }
 
+            let pedidoBanco = null
             realm.write(() => {
-                realm.create('Pedido', pedido, 'modified')
+                pedidoBanco = realm.create('Pedido', pedido, 'modified')
             })
+
+            let netInfo = null
+            await NetInfo.fetch().then(state => netInfo = state)
+            if (netInfo && netInfo.isConnected) {
+                enviaPedido(pedidoBanco, realm)
+            }
     
             Alert.alert('Sucesso!', 'Pedido cadastrada com sucesso.', [{
                 text: 'OK',

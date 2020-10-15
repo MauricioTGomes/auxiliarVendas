@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
-import {View, ScrollView, StyleSheet, Alert} from 'react-native'
+import {View, ScrollView, Alert} from 'react-native'
 import commonStyles from '../../commonStyles'
 import { Button } from 'react-native-paper'
 import { TextInputMask } from 'react-native-masked-text'
 import { validateCnpj } from 'react-native-masked-text/dist/lib/masks/cnpj.mask'
 import { validateCPF } from 'react-native-masked-text/dist/lib/masks/cpf.mask'
-
+import NetInfo from "@react-native-community/netinfo";
+import { enviaPessoa } from '../../hocs/services/Functions'
 import moment from 'moment'
 import 'moment/locale/pt-br'
 
@@ -13,7 +14,7 @@ import getRealm from '../../realm/realm';
 import FormInput from '../../components/Form/Input'
 import PesquisaCidade from '../../components/Pessoa/PesquisaCidade'
 
-const pessoaInicial = {ativo_checkbox: 'checked', ativo: 1, nome: '', tipo: 1, cpf: '', cnpj: '', razao_social: '', fantasia: '', cidade: '', cep: '', endereco: '', endereco_nro: '', bairro: '', complemento: '',}
+const pessoaInicial = {ativo_checkbox: 'checked', ativo: 1, nome: '', tipo: 1, cpf: '', cnpj: '', razao_social: '', fantasia: '', cidade: '', cep: '', endereco: '', endereco_nro: '', bairro: '', complemento: '', limite_credito: 0}
 export default class AddPessoa extends Component {
     state = {
         showModalCidade: false,
@@ -121,10 +122,17 @@ export default class AddPessoa extends Component {
             } else {
                 pessoa.data_alteracao = moment().locale('pt-br').format('YYYY-MM-DDTHH:MM:SS')
             }
-
+            
+            let pessoaBanco = null
             realm.write(() => {
-                realm.create('Pessoa', pessoa, 'modified')
+                pessoaBanco = realm.create('Pessoa', pessoa, 'modified')
             })
+
+            let netInfo = null
+            await NetInfo.fetch().then(state => netInfo = state)
+            if (netInfo && netInfo.isConnected) {
+                enviaPessoa(pessoaBanco, realm)
+            }
     
             Alert.alert('Sucesso!', 'Pessoa cadastrada com sucesso.', [{
                 text: 'OK',
@@ -238,6 +246,20 @@ export default class AddPessoa extends Component {
                         onChangeText={complemento => this.setState({ pessoa: {...this.state.pessoa, complemento} })}
                     />
                     
+                    <FormInput
+                        label='Limite de crédito'
+                        value={this.state.pessoa.limite_credito}
+                        render={props => 
+                            <TextInputMask
+                                {...props}
+                                type='money'
+                                options={ commonStyles.optionsInputPositive }
+                                includeRawValueInChangeText
+                                onChangeText={(_, limite_credito) => this.setState({ pessoa: {...this.state.pessoa, limite_credito} })}
+                            />
+                        }
+                    />
+
                     <View style={commonStyles.buttons}>
                         <Button disabled={this.formInvalido()} mode="contained" color="green" onPress={() => this.salvar()}>
                             Salvar

@@ -60,6 +60,7 @@ class ListarPedido extends Component {
     }
 
     addPedido = pessoa => {
+        delete pessoa.data_criacao
         this.props.navigation.navigate('AddPedido', {pessoa})
         this.setState({ showModalPesquisaPessoa: false })
     }

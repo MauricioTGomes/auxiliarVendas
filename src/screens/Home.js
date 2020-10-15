@@ -52,7 +52,8 @@ class Home extends Component {
         return (
             <View style={ styles.tela }>
                 <OrientationLoadingOverlay visible={this.state.loader} color="white" indicatorSize="large" messageFontSize={24} message="Sincronizando..."/>
-                <Header/>
+                
+                <Header {...this.props}/>
                 
                 <View style={styles.container}>
                     <Text style={styles.texto}>{ this.props.auth.user.name }</Text>
