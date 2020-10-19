@@ -13,8 +13,8 @@ import { baixarPedidos, baixarProdutos, baixarPessoas } from '../../hocs/service
 
 const initialState = {
     name: 'Mauricio Gomes',
-    email: 'mauricio@numerama.com.br',
-    password: 'M@u96218195',
+    email: '',
+    password: '',
     loader: false,
     mensagem: "Entrando..."
 }

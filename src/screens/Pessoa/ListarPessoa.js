@@ -5,11 +5,13 @@ import {
     StyleSheet,
     ScrollView
 } from 'react-native'
+import commonStyles from '../../commonStyles'
 import Header from '../../components/Header'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { DataTable, Searchbar } from 'react-native-paper';
 import getRealm from '../../realm/realm';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
+import Swipeable from 'react-native-gesture-handler/Swipeable'
 
 class ListarPessoa extends Component {
     state = {
@@ -25,7 +27,9 @@ class ListarPessoa extends Component {
     }
 
     componentDidMount = async () => {
-        this.buscarPessoas('', 1)
+        setTimeout(function() {
+            this.buscarPessoas('', 1)
+        }, 500)
     }
 
     buscarPessoas = async (parametrosBuscar, page = 1) => {
@@ -60,6 +64,22 @@ class ListarPessoa extends Component {
 
     editarPessoa = pessoaID => this.props.navigation.navigate('AddPessoa', {pessoaID})
 
+    getRightContent = (pessoaID) => {
+        return (
+            <TouchableOpacity style={ [commonStyles.swipeable, {backgroundColor: 'green'}] } onPress={() => this.editarPessoa(pessoaID)}>
+                <Icon name='pencil' size={30} color='white' />
+            </TouchableOpacity>
+        )
+    }
+
+    getLeftContent = () => {
+        return (
+            <TouchableOpacity style={ [commonStyles.swipeable, {backgroundColor: 'red'}] } onPress={}>
+                <Icon name='trash' size={30} color='white' />
+            </TouchableOpacity>
+        )
+    }
+
     render() {
         return (
             <View style={{flex: 1}}>
@@ -74,25 +94,25 @@ class ListarPessoa extends Component {
                         value={this.state.parametrosBuscar}
                     />
                     <ScrollView>
-                        <DataTable style={{flex: 5}}>
+                        <DataTable>
                             <DataTable.Header>
-                                <DataTable.Title numberOfLines={2} style={{flex: 2}}>Nome / Razao Social</DataTable.Title>
-                                <DataTable.Title style={{flex: 2, justifyContent: 'center'}}>CPF / CNPJ</DataTable.Title>
-                                <DataTable.Title style={{justifyContent: 'flex-end'}}>Ação</DataTable.Title>
+                                <DataTable.Title numberOfLines={2} >Nome / Razao Social</DataTable.Title>
+                                <DataTable.Title style={{justifyContent: 'center'}}>CPF / CNPJ</DataTable.Title>
                             </DataTable.Header>
 
                             {
                                 this.state.pessoas.map((pessoa, index) => {
                                     return (
-                                        <DataTable.Row key={index}>
-                                            <DataTable.Cell style={{flex: 2}}>{pessoa.nomeRazaoSocial}</DataTable.Cell>
-                                            <DataTable.Cell style={{flex: 2, justifyContent: 'center'}} numeric>{ pessoa.cpfCnpj }</DataTable.Cell>
-                                            <DataTable.Cell style={{justifyContent: 'flex-end'}}>
-                                                <TouchableOpacity onPress={this.editarPessoa}>
-                                                    <Icon size={20} name='pencil' color='green' onPress={() => this.editarPessoa(pessoa.id)}/>
-                                                </TouchableOpacity>
-                                            </DataTable.Cell>
-                                        </DataTable.Row>
+                                        <Swipeable 
+                                            renderRightActions={() => this.getRightContent(pessoa.id)}
+                                            renderLeftActions={() => this.getLeftContent(pessoa.id)}
+                                            key={index}
+                                        >
+                                            <DataTable.Row key={index}>
+                                                <DataTable.Cell>{pessoa.nomeRazaoSocial}</DataTable.Cell>
+                                                <DataTable.Cell style={{justifyContent: 'center'}}>{ pessoa.cpfCnpj }</DataTable.Cell>
+                                            </DataTable.Row>
+                                        </Swipeable>
                                     )
                                 })
                             }
