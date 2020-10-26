@@ -14,7 +14,7 @@ import { Button, Card, DataTable } from 'react-native-paper'
 import { connect } from 'react-redux'
 
 import NetInfo from "@react-native-community/netinfo";
-import { enviaPedido } from '../../hocs/services/Functions'
+import { enviaPedido } from '../../services/Functions'
 
 import getRealm from '../../realm/realm'
 import {formatMoney} from '../../components/Functions'

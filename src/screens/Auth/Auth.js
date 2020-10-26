@@ -9,7 +9,7 @@ import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay'
 
 import getRealm from '../../realm/realm'
 import cidades from '../../realm/scriptCidades'
-import { baixarPedidos, baixarProdutos, baixarPessoas } from '../../hocs/services/Functions'
+import { baixarPedidos, baixarProdutos, baixarPessoas } from '../../services/Functions'
 
 const initialState = {
     name: 'Mauricio Gomes',

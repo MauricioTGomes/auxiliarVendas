@@ -1,8 +1,23 @@
-import { serve } from '../../common'
-import getRealm from '../../realm/realm'
+import { serve } from '../common'
+import getRealm from '../realm/realm'
+
 import axios from 'axios'
+import NetInfo from "@react-native-community/netinfo";
 import moment from 'moment'
 import 'moment/locale/pt-br'
+
+const iniciaSincronismo = async () => {
+    let netInfo = null
+    await NetInfo.fetch().then(state => {
+        netInfo = state
+    });
+    
+    if (netInfo && netInfo.isConnected) {
+        await baixarProdutos()
+        await baixarPessoas()
+        await baixarPedidos()
+    }
+}
 
 /** INICIO CONTROLA PRODUTO */
 const baixarProdutos = async () => {
@@ -385,5 +400,6 @@ export {
     baixarPessoas, 
     baixarPedidos,
     enviaPessoa,
-    enviaPedido
+    enviaPedido,
+    iniciaSincronismo
 }

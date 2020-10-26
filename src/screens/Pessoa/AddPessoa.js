@@ -6,7 +6,7 @@ import { TextInputMask } from 'react-native-masked-text'
 import { validateCnpj } from 'react-native-masked-text/dist/lib/masks/cnpj.mask'
 import { validateCPF } from 'react-native-masked-text/dist/lib/masks/cpf.mask'
 import NetInfo from "@react-native-community/netinfo";
-import { enviaPessoa } from '../../hocs/services/Functions'
+import { enviaPessoa } from '../../services/Functions'
 import moment from 'moment'
 import 'moment/locale/pt-br'
 

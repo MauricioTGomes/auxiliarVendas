@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import Header from '../components/Header'
 import { setaUser } from '../store/actions/auth'
 import getRealm from '../realm/realm'
-import { baixarPedidos, baixarPessoas, baixarProdutos } from '../hocs/services/Functions'
+import { baixarPedidos, baixarPessoas, baixarProdutos } from '../services/Functions'
 
 class Inicial extends Component {
     state = {
