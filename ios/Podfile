@@ -27,6 +27,9 @@ target 'auxiliarVendas' do
 
   pod 'react-native-netinfo', :path => '../node_modules/@react-native-community/netinfo'
 
+
+  pod 'RNBackgroundFetch', :path => '../node_modules/react-native-background-fetch'
+
   target 'auxiliarVendasTests' do
     inherit! :complete
     # Pods for testing

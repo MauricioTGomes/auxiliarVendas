@@ -1,20 +1,24 @@
 import React, {Component} from 'react'
-import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native' 
-import Header from '../../components/Header'
+import { Dimensions, Text, View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native' 
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { DataTable, Searchbar } from 'react-native-paper';
 import moment from 'moment'
 import 'moment/locale/pt-br'
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
+import Swipeable from 'react-native-gesture-handler/Swipeable'
 
+import ModalDetalhes from '../../components/Pedido/ModalDetalhes'
+import commonStyles from '../../commonStyles'
+import Header from '../../components/Header'
 import getRealm from '../../realm/realm';
 import PesquisaPessoa from '../../components/Pessoa/PesquisaPessoa'
-import {formatMoney} from '../../components/Functions'
+import { formatMoney } from '../../components/Functions'
 
 class ListarPedido extends Component {
     state = {
         pedidos: [],
         parametrosBuscar: '',
+        filtrarEstornados: false,
         showModalPesquisaPessoa: false,
         loader: true,
         pagination: {
@@ -22,10 +26,22 @@ class ListarPedido extends Component {
             fim: 1,
             inicio: 1,
             totalItens: 0
-        }
+        },
+        detalhes: {
+            pedido: {},
+            isVisible: false
+        },
     }
 
     componentDidMount = async () => {
+        const self = this
+        setTimeout(function () {
+            self.buscaPedido('', 1)
+        }, 500)
+    }
+
+    filtroAtivo = () => {
+        this.setState({ filtrarEstornados: !this.state.filtrarEstornados })
         this.buscaPedido('', 1)
     }
 
@@ -35,11 +51,11 @@ class ListarPedido extends Component {
         
         let pedidos = []
         if (this.state.parametrosBuscar != '') {
-            pedidos = realm.objects('Pedido')
-                        .filtered(`pessoa.nome CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.fantasia CONTAINS[c] "${this.state.parametrosBuscar}"`)
+            pedidos = await realm.objects('Pedido')
+                        .filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}" AND (numero CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.nome CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.fantasia CONTAINS[c] "${this.state.parametrosBuscar}")`)
                         .sorted('data_criacao')
         } else {
-            pedidos = realm.objects('Pedido')
+            pedidos = await realm.objects('Pedido').filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}"`)
         }
         
         let totalItens = pedidos.length
@@ -64,11 +80,26 @@ class ListarPedido extends Component {
         this.props.navigation.navigate('AddPedido', {pessoa})
         this.setState({ showModalPesquisaPessoa: false })
     }
+    
+    getLeftContent = (pedidoID) => {
+        return (
+            <TouchableOpacity style={ [commonStyles.swipeable, {backgroundColor: 'blue'}] } onPress={() => this.abreModalDetalhes(pedidoID)}>
+                <Icon name='info' size={30} color='white' />
+            </TouchableOpacity>
+        )
+    }
+
+    abreModalDetalhes = async pedidoId => {
+        let pedido = (await getRealm()).objects('Pedido').filtered(`id = "${pedidoId}"`)[0]
+        this.setState({ detalhes: { pedido, isVisible: true } })
+    }
 
     render() {
         return (
             <View style={{flex: 1}}>
-                <OrientationLoadingOverlay visible={this.state.loader} color="white" indicatorSize="large" messageFontSize={24} message="Buscando pessoas..."/>
+                <OrientationLoadingOverlay visible={this.state.loader} color="white" indicatorSize="large" messageFontSize={24} message="Buscando pedidos..."/>
+
+                <ModalDetalhes { ...this.state.detalhes } onCancel={() => this.setState({ detalhes: { isVisible: false, pessoa: {} } })}/>
 
                 <Header/>
                 
@@ -86,23 +117,36 @@ class ListarPedido extends Component {
                     />
 
                     <ScrollView>
-                        <DataTable style={styles.datatable}>
-                            <DataTable.Header>
-                                <DataTable.Title style={styles.datatableCellUm}>Data</DataTable.Title>
-                                <DataTable.Title style={styles.datatableCellDois}>Nome</DataTable.Title>
-                                <DataTable.Title style={styles.datatableCellTres}>Produtos</DataTable.Title>
-                                <DataTable.Title style={styles.datatableCellQuatro}>Valor (R$)</DataTable.Title>
+                        <DataTable>
+                            <DataTable.Header style={ commonStyles.datatables.datatableHeader }>
+                                <View style={ styles.viewRow }>
+                                    <Text style={ styles.titleNome }>Cliente</Text>
+                                    <View style={ [styles.textoDataProd, {marginLeft: 10}] }>
+                                        <Text style={ styles.headerSubTitle }>Data</Text>
+                                        <Text style={ styles.headerSubTitle }>Número</Text>
+                                        <Text style={ styles.headerSubTitle }>Produtos</Text>
+                                        <Text style={ styles.headerSubTitle }>Valor (R$)</Text>
+                                    </View>
+                                </View> 
                             </DataTable.Header>
 
                             {
                                 this.state.pedidos.map((pedido, index) => {
                                     return (
-                                        <DataTable.Row key={index}>
-                                            <DataTable.Cell style={styles.datatableCellUm}>{ moment(pedido.data_criacao).locale('pt-br').format('D/MM/YYYY') }</DataTable.Cell>
-                                            <DataTable.Cell style={styles.datatableCellDois}>{ pedido.pessoa != null ? pedido.pessoa.nomeRazaoSocial : 'Não informado' }</DataTable.Cell>
-                                            <DataTable.Cell style={styles.datatableCellTres} numeric>{ pedido.itens.length }</DataTable.Cell>
-                                            <DataTable.Cell style={styles.datatableCellQuatro} numeric>{ formatMoney(pedido.vlr_liquido) }</DataTable.Cell>
-                                        </DataTable.Row>
+                                        <Swipeable
+                                            renderLeftActions={() => this.getLeftContent(pedido.id)} key={index}>
+                                            <DataTable.Row key={index} style={ styles.rowDatatable }>
+                                                <View style={ styles.viewRow }>
+                                                    <Text>{ pedido.pessoa != null ? pedido.pessoa.nomeRazaoSocial : 'Não informado' }</Text>
+                                                    <View style={ styles.textoDataProd }>
+                                                        <Text>{ moment(pedido.data_criacao).locale('pt-br').format('DD/MM/YYYY') }</Text>
+                                                        <Text>{ pedido.numero }</Text>
+                                                        <Text>{ pedido.itens.length }</Text>
+                                                        <Text>{ formatMoney(pedido.vlr_liquido) }</Text>
+                                                    </View>
+                                                </View> 
+                                            </DataTable.Row>
+                                        </Swipeable>
                                     )
                                 })
                             }
@@ -117,8 +161,16 @@ class ListarPedido extends Component {
                     </ScrollView>
                     
                     <TouchableOpacity
+                        onPress={this.filtroAtivo}
+                        style={ commonStyles.filtrarButton }
+                        activeOpacity={0.7}
+                    >
+                        <Icon name={ this.state.filtrarEstornados ? 'eye' : 'eye-slash' } size={20} color='white' />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
                         onPress={() => this.setState({ showModalPesquisaPessoa: true })}
-                        style={styles.addButton}
+                        style={ commonStyles.addButton }
                         activeOpacity={0.7}
                     >
                         <Icon name="plus" size={20} color='white'/>
@@ -130,34 +182,23 @@ class ListarPedido extends Component {
 }
 
 const styles = StyleSheet.create({
-    addButton: {
-        position: 'absolute',
-        right: 30,
-        bottom: 50,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'blue'
+    headerSubTitle: {
+        fontSize: 10,
     },
-    datatable: {
-        flex: 6
+    titleNome: {
+        fontSize: 15,
     },
-    datatableCellUm: {
-        flex: 2
+    rowDatatable: {
+        height: 60,
+        margin: 5
     },
-    datatableCellDois: {
-        flex: 2
+    textoDataProd: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
-    datatableCellTres: {
-        flex: 1,
-        justifyContent: 'flex-end'
-    },
-    datatableCellQuatro: {
-        flex: 1,
-        justifyContent: 'flex-end'
-    },
+    viewRow: {
+        width: Dimensions.get('window').width - 50
+    }
 })
 
 export default ListarPedido

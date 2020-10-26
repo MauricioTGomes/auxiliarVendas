@@ -9,6 +9,7 @@ Produto.schema = {
         nome: 'string',
         qtd_estoque: 'double?',
         vlr_venda: 'double?',
+        ativo: 'int?'
     },
 };
 

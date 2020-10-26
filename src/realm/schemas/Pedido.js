@@ -15,6 +15,7 @@ Pedido.schema = {
         vlr_desconto: 'double?',
         estornado: {type: 'int?', default: 0},
         data_criacao: 'date?',
+        estornado: 'int?'
     },
 };
 

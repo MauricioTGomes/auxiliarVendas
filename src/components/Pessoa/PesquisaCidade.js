@@ -20,11 +20,9 @@ export default class PesquisaCidade extends Component {
 
     setaNome = async nome => {
         this.setState({ nome })
-        console.log(this.state.nome.length)
         if (this.state.nome.length >= 3) {
             let realm = (await getRealm())
             let cidades = realm.objects('Cidade').filtered(`nome like "*${this.state.nome}*"`)
-            console.log(cidades.length)
             this.setState({ cidades })
         }
     }

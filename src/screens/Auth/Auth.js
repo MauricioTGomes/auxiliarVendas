@@ -13,22 +13,13 @@ import { baixarPedidos, baixarProdutos, baixarPessoas } from '../../hocs/service
 
 const initialState = {
     name: 'Mauricio Gomes',
-    email: '',
-    password: '',
+    email: 'mauricio@numerama.com.br',
+    password: 'M@u96218195',
     loader: false,
     mensagem: "Entrando..."
 }
 
 class Auth extends Component {   
-    async componentDidMount() {
-        /* 
-        let realm  = await (getRealm())
-        console.log(realm.objects('Configuracao').length)
-        realm.write(() => {
-            realm.deleteAll()
-        })*/
-    }
-
     state = {...initialState}
 
     signin = async () => {
@@ -43,6 +34,7 @@ class Auth extends Component {
             AsyncStorage.setItem('userData',  JSON.stringify(userData))
             this.verificaPrimeiroLogin()
         }).catch(resp => {
+            this.setState({ loader: false })
             if (resp.response.data.error != undefined) {
                 Alert.alert('Atenção!', resp.response.data.error)
             }
@@ -75,7 +67,6 @@ class Auth extends Component {
         } catch(e){
             realm.cancelTransaction()
             this.setState({ loader: false })
-            console.log(e)
             Alert.alert('Atenção!', e)
         }
     }

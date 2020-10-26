@@ -49,6 +49,7 @@ const gravaProduto = (produto, realm) => {
         nome: produto.nome,
         qtd_estoque: parseFloat(produto.qtd_estoque),
         vlr_venda: parseFloat(produto.vlr_venda),
+        ativo: parseInt(produto.ativo)
     }
 
     let produtoUpdate = realm.create('Produto', prodCreate, 'modified')
@@ -72,7 +73,6 @@ const baixarPessoas = async () => {
 
             if (pessoas.length > 0) {
                 await pessoas.forEach(pessoa => {
-                    console.log(pessoa)
                     let pessoaBanco = realm.objects('Pessoa').filtered(`id_numerama = ${pessoa.id}`)[0]
                     let lastId = null
                     
@@ -88,6 +88,7 @@ const baixarPessoas = async () => {
                     }
                     
                     let pessoaCreate = {
+                        ativo: parseInt(pessoa.ativo),
                         id: pessoaBanco != undefined ? pessoaBanco.id : lastId,
                         id_numerama: pessoa.id,
                         cidade,
@@ -104,7 +105,8 @@ const baixarPessoas = async () => {
                         limite_credito: parseFloat(pessoa.limite_credito),
                         tipo: parseInt(pessoa.tipo),
                         saldo_atrasado: parseFloat(pessoa.saldos.total_atrasado),
-                        saldo_em_dia: parseFloat(pessoa.saldos.total_em_dia)
+                        saldo_em_dia: parseFloat(pessoa.saldos.total_em_dia),
+                        ie: pessoa.ie
                     }
     
                     realm.create('Pessoa', pessoaCreate, 'modified')
@@ -152,6 +154,8 @@ const enviaPessoa = async (pessoa, realm) => {
         tipo: pessoa.tipo,
         cidade_id: pessoa.cidade.id,
         created_at: pessoa.data_criacao,
+        limite_credito: pessoa.limite_credito,
+        ie: pessoa.ie
     }).then(resp => {
         if (resp.data.pessoa != undefined) {
             realm.write(() => {
@@ -258,7 +262,7 @@ const baixarPedidos = async () => {
                             vlr_liquido: parseFloat(pedido.vlr_liquido),
                             vlr_bruto: parseFloat(pedido.vlr_bruto),
                             vlr_desconto: parseFloat(pedido.vlr_desconto),
-                            estornado: pedido.estornado,
+                            estornado: parseInt(pedido.estornado),
                             data_criacao: moment(pedido.created_at, "DD/MM/YYYY H:m:s").locale('pt-br').format('YYYY-MM-DD')
                         }
         

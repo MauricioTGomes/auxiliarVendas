@@ -1,16 +1,20 @@
 import React, {Component} from 'react'
-import { View, ScrollView } from 'react-native' 
-import Header from '../../components/Header'
+import { View, ScrollView, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native' 
+import Icon from 'react-native-vector-icons/FontAwesome'
 import { DataTable, Searchbar } from 'react-native-paper';
-import getRealm from '../../realm/realm';
-import {formatMoney} from '../../components/Functions'
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
+
+import commonStyles from '../../commonStyles'
+import Header from '../../components/Header'
+import getRealm from '../../realm/realm';
+import { formatMoney } from '../../components/Functions'
 
 class ListarProduto extends Component {
     state = {
+        filtrarAtivos: true,
         produtos: [],
         parametrosBuscar: '',
-        loader: false,
+        loader: true,
         pagination: {
             page: 1,
             fim: 1,
@@ -20,6 +24,14 @@ class ListarProduto extends Component {
     }
     
     componentDidMount = async () => {
+        const self = this
+        setTimeout(function() {
+            self.buscaProduto('', 1)
+        }, 500)
+    }
+
+    filtroAtivo = () => {
+        this.setState({ filtrarAtivos: !this.state.filtrarAtivos })
         this.buscaProduto('', 1)
     }
 
@@ -29,9 +41,9 @@ class ListarProduto extends Component {
         
         let produtos = []
         if (this.state.parametrosBuscar != '') {
-            produtos = realm.objects('Produto').filtered(`nome CONTAINS[c] "${parametrosBuscar}"`)
+            produtos = await realm.objects('Produto').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}" AND nome CONTAINS[c] "${parametrosBuscar}"`)
         } else {
-            produtos = realm.objects('Produto')
+            produtos = await realm.objects('Produto').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}"`)
         }
 
         let totalItens = produtos.length
@@ -66,20 +78,30 @@ class ListarProduto extends Component {
                     />
 
                     <ScrollView>
-                        <DataTable style={{flex: 4}}>
-                            <DataTable.Header>
-                                <DataTable.Title style={{flex: 2}}>Nome</DataTable.Title>
-                                <DataTable.Title style={{justifyContent: 'flex-end'}}>Estoque</DataTable.Title>
-                                <DataTable.Title style={{justifyContent: 'flex-end'}}>Valor (R$)</DataTable.Title>
+                        <DataTable>
+                            <DataTable.Header style={ styles.datatableHeader }>
+                                <View style={ styles.viewRow }>
+                                    <Text style={ styles.titleNome }>Nome</Text>
+                                    <View style={ styles.textoValorEstoque }>
+                                        <Text style={ styles.titleEstVlr }>Estoque</Text>
+                                        <Text style={ styles.titleEstVlr }>Valor (R$)</Text>
+                                    </View>
+                                </View>                                
                             </DataTable.Header>
 
                             {
                                 this.state.produtos.map((produto, index) => {
                                     return (
-                                        <DataTable.Row key={index}>
-                                            <DataTable.Cell>{ produto.nome }</DataTable.Cell>
-                                            <DataTable.Cell numeric>{ formatMoney(produto.qtd_estoque) }</DataTable.Cell>
-                                            <DataTable.Cell numeric>{ formatMoney(produto.vlr_venda) }</DataTable.Cell>
+                                        <DataTable.Row key={index} style={ styles.rowDatatable }>
+                                            <DataTable.Cell>
+                                                <View style={ styles.viewRow }>
+                                                    <Text>{ produto.nome }</Text>
+                                                    <View style={ styles.textoValorEstoque }>
+                                                        <Text>{ formatMoney(produto.qtd_estoque) }</Text>
+                                                        <Text>{ formatMoney(produto.vlr_venda) }</Text>
+                                                    </View>
+                                                </View>                                                  
+                                            </DataTable.Cell>
                                         </DataTable.Row>
                                     )
                                 })
@@ -93,10 +115,43 @@ class ListarProduto extends Component {
                             />
                         </DataTable>
                     </ScrollView>
+                    
+                    <TouchableOpacity
+                        onPress={this.filtroAtivo}
+                        style={ commonStyles.filtrarButton }
+                        activeOpacity={0.7}
+                    >
+                        <Icon name={ this.state.filtrarAtivos ? 'eye' : 'eye-slash' } size={20} color='white' />
+                    </TouchableOpacity>
                 </View>
             </View>
         )
     }
 }
+
+const styles = StyleSheet.create({
+    titleEstVlr: {
+        fontSize: 10,
+        textAlign: 'right',
+    },
+    titleNome: {
+        fontSize: 15,
+    },
+    datatableHeader: {
+        height: 50,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)'
+    },
+    rowDatatable: {
+        height: 60,
+        margin: 5
+    },
+    textoValorEstoque: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    viewRow: {
+        width: Dimensions.get('window').width - 50
+    }
+})
 
 export default ListarProduto

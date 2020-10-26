@@ -285,11 +285,11 @@ class FormFormasPagamento extends Component {
                         
                         <Card.Content>
                             <ScrollView>
-                                <DataTable style={ styles.datatable }>
+                                <DataTable>
                                     <DataTable.Header>
-                                        <DataTable.Title style={ styles.titleDatatableUm }>Nro</DataTable.Title>
-                                        <DataTable.Title style={ styles.titleDatatableUm }>Vencimento</DataTable.Title>
-                                        <DataTable.Title style={ styles.titleDatatableDois }>Valor (R$)</DataTable.Title>
+                                        <DataTable.Title>Nro</DataTable.Title>
+                                        <DataTable.Title>Vencimento</DataTable.Title>
+                                        <DataTable.Title>Valor (R$)</DataTable.Title>
                                     </DataTable.Header>
 
                                     {
@@ -297,9 +297,9 @@ class FormFormasPagamento extends Component {
                                         this.state.forma.array_parcelas.map((parcela, index) => {
                                             return (
                                                 <DataTable.Row underlayColor='blue' rippleColor='red' key={index}>
-                                                    <DataTable.Cell style={ styles.cellDatatable }>{ parcela.nro_parcela }</DataTable.Cell>
-                                                    <DataTable.Cell style={ styles.cellDatatable }>{ parcela.data_vencimento_formatada }</DataTable.Cell>
-                                                    <DataTable.Cell style={ styles.cellDatatable }>{ formatMoney(parcela.valor_original)}</DataTable.Cell>
+                                                    <DataTable.Cell>{ parcela.nro_parcela }</DataTable.Cell>
+                                                    <DataTable.Cell>{ parcela.data_vencimento_formatada }</DataTable.Cell>
+                                                    <DataTable.Cell>{ formatMoney(parcela.valor_original)}</DataTable.Cell>
                                                 </DataTable.Row>
                                             )
                                         }) :
@@ -469,11 +469,11 @@ class FormFormasPagamento extends Component {
                                     
                                     <Card.Content>
                                         <ScrollView>
-                                            <DataTable style={ styles.datatable }>
+                                            <DataTable style={ commonStyles.datatables.formaPagamento.containerDatatable }>
                                                 <DataTable.Header>
-                                                    <DataTable.Title style={ styles.titleDatatableUm }>Nome</DataTable.Title>
-                                                    <DataTable.Title style={ styles.titleDatatableUm }>Valor (R$)</DataTable.Title>
-                                                    <DataTable.Title style={ styles.titleDatatableDois }>Parcelas</DataTable.Title>
+                                                    <DataTable.Title style={ commonStyles.datatables.formaPagamento.colunaUm }>Nome</DataTable.Title>
+                                                    <DataTable.Title>Valor (R$)</DataTable.Title>
+                                                    <DataTable.Title>Parcelas</DataTable.Title>
                                                 </DataTable.Header>
 
                                                 {
@@ -484,9 +484,9 @@ class FormFormasPagamento extends Component {
                                                                 key={index}
                                                             >
                                                                 <DataTable.Row underlayColor='blue' rippleColor='red' key={index}>
-                                                                    <DataTable.Cell style={ styles.cellDatatable }>{ forma.forma_pagamento.nome }</DataTable.Cell>
-                                                                    <DataTable.Cell style={ styles.cellDatatable }>{ formatMoney(forma.vlr_total) }</DataTable.Cell>
-                                                                    <DataTable.Cell style={ styles.cellDatatable }>{ forma.array_parcelas == undefined ? '----' : forma.array_parcelas.length }</DataTable.Cell>
+                                                                    <DataTable.Cell  style={ commonStyles.datatables.formaPagamento.colunaUm }>{ forma.forma_pagamento.nome }</DataTable.Cell>
+                                                                    <DataTable.Cell>{ formatMoney(forma.vlr_total) }</DataTable.Cell>
+                                                                    <DataTable.Cell>{ forma.array_parcelas == undefined ? '----' : forma.array_parcelas.length }</DataTable.Cell>
                                                                 </DataTable.Row>
                                                             </Swipeable>
                                                         )

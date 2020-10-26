@@ -29,11 +29,6 @@ export default class PesquisaPessoa extends Component {
         }
     }
 
-    async componentDidMount() {
-        let pessoas = (await getRealm()).objects('Pessoa')
-        this.setState({ pessoas })
-    }
-    
     render() {
         return (
             <Modal transparent={true} visible={this.props.isVisible} onRequestClose={this.props.onCancel} animationType='slide'>

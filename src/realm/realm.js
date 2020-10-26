@@ -14,9 +14,9 @@ export default function getRealm() {
     return Realm.open(
         {
             schema: [ConfiguracaoSchema, CidadeSchema, PessoaSchema, ProdutoSchema, FormaPagamentoSchema, ParcelaSchema, PagamentoSchema, ItemSchema, PedidoSchema],
-            schemaVersion: 19,
+            schemaVersion: 20,
             migration: (oldRealm, newRealm) => {
-                if (oldRealm.schemaVersion == 19) {
+                if (oldRealm.schemaVersion == 20) {
                     newRealm.deleteAll()
                 }
 

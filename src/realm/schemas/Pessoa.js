@@ -44,6 +44,7 @@ Pessoa.schema = {
         tipo: 'int',
         data_criacao: 'date?',
         data_alteracao: 'date?',
+        ie: 'string?'
     },
 };
 

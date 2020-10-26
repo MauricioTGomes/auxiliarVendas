@@ -1,22 +1,25 @@
 import React, { Component } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import Header from '../components/Header'
-import { connect } from 'react-redux'
-import { setaUser } from '../store/actions/auth'
 import AsyncStorage from '@react-native-community/async-storage'
+import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
+import axios from 'axios'
+import { connect } from 'react-redux'
+import Header from '../components/Header'
+import { setaUser } from '../store/actions/auth'
 import getRealm from '../realm/realm'
 import { baixarPedidos, baixarPessoas, baixarProdutos } from '../hocs/services/Functions'
-import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
 
-class Home extends Component {
+class Inicial extends Component {
     state = {
         loader: false,
         ultimaAttPessoa: '',
         ultimaAttProduto: '',
         ultimaAttPedido: '',
     }
+    
     async componentDidMount() {
         const self = this
+        
         setTimeout(function () {
             self.getDadosTela()
         }, 200)
@@ -33,6 +36,12 @@ class Home extends Component {
             ultimaAttPessoa: configuracao.ultima_sincronizacao_pessoa,
             ultimaAttProduto: configuracao.ultima_sincronizacao_produto,
         })
+    }
+
+    logout = () => {
+        AsyncStorage.removeItem('userData')
+        axios.defaults.headers.common['Authorization'] = null
+        this.props.navigation.navigate('AuthOrApp')
     }
 
     sincronizar = async tipo => {
@@ -52,15 +61,12 @@ class Home extends Component {
         return (
             <View style={ styles.tela }>
                 <OrientationLoadingOverlay visible={this.state.loader} color="white" indicatorSize="large" messageFontSize={24} message="Sincronizando..."/>
-                
+
                 <Header {...this.props}/>
                 
                 <View style={styles.container}>
-                    <Text style={styles.texto}>{ this.props.auth.user.name }</Text>
-                    <Text style={styles.texto}>{ this.props.auth.user.email }</Text>
-                    <Text style={styles.texto}>Tem token: { this.props.auth.user.token != null && this.props.auth.user.token != '' ? 'Sim' : 'Não' }</Text>
+                    <Text style={styles.texto}>Bem-vindo: { this.props.auth.user.name }</Text>
                 </View>
-                    
 
                 <View style={styles.container}>
                     <Text style={styles.texto}>Pessoa: { this.state.ultimaAttPessoa }</Text>
@@ -89,6 +95,11 @@ class Home extends Component {
                         </View>
                     </TouchableOpacity>
 
+                    <TouchableOpacity onPress={() => this.logout()}>
+                        <View style={styles.botaoSync}>
+                            <Text style={styles.botaoTexto}>Sair</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </View>
         )
@@ -96,6 +107,7 @@ class Home extends Component {
 }
 
 const styles = StyleSheet.create({
+    button: { padding: 20, backgroundColor: "#ccc", marginBottom: 10 },
     tela: {
         flex: 1
     },
@@ -132,4 +144,4 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = { setaUser }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default connect(mapStateToProps, mapDispatchToProps)(Inicial)

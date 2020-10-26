@@ -104,8 +104,6 @@ export default class AddPessoa extends Component {
         pessoa.ativo_checkbox = ativoAtual == 1 ? 'unchecked' : 'checked'
         
         this.setState({ pessoa })
-        
-        console.log(this.state.pessoa.ativo_checkbox, this.state.pessoa.ativo)
     }
 
     salvar = async () => {
@@ -219,6 +217,13 @@ export default class AddPessoa extends Component {
                                 onChangeText={cep => this.setState({ pessoa: {...this.state.pessoa, cep} })}
                             />
                         }
+                    />
+
+                    <FormInput
+                        label="Inscrição estadual"
+                        value={this.state.pessoa.ie}
+                        keyboardType='number-pad'
+                        onChangeText={ie => this.setState({ pessoa: {...this.state.pessoa, ie} })}
                     />
 
                     <FormInput

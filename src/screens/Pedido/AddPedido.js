@@ -12,7 +12,7 @@ import {formatMoney} from '../../components/Functions'
 import { limparForm, addPessoa, addItem, removeItem, controlaDadosFaturamento } from '../../store/actions/pedido'
 import commonStyles from '../../commonStyles'
 
-const itemInicial = {produto: {}, index: null, produto_id: null, quantidade: 1, vlr_unitario: '', vlr_desconto: '', vlr_total: 0, vlr_unitario: ''}
+const itemInicial = {produto: {}, index: null, produto_id: null, quantidade: '', vlr_unitario: '', vlr_desconto: '', vlr_total: 0, vlr_unitario: ''}
 
 class AddPedido extends Component {
     state = {
@@ -195,10 +195,10 @@ class AddPedido extends Component {
                                 
                                 <Card.Content>
                                     <ScrollView>
-                                        <DataTable style={ styles.datatable }>
+                                        <DataTable style={ commonStyles.datatables.itens.containerDatatable }>
                                             <DataTable.Header>
-                                                <DataTable.Title numberOfLines={2} style={ styles.titleDatatableUm }>Nome</DataTable.Title>
-                                                <DataTable.Title  numberOfLines={2} style={ styles.titleDatatableDois }>Total (R$)</DataTable.Title>
+                                                <DataTable.Title style={ commonStyles.datatables.itens.colunaUm }>Nome</DataTable.Title>
+                                                <DataTable.Title>Total (R$)</DataTable.Title>
                                             </DataTable.Header>
 
                                             {
@@ -212,7 +212,7 @@ class AddPedido extends Component {
                                                             <DataTable.Row
                                                                 underlayColor='blue'
                                                                 rippleColor='red'>
-                                                                <DataTable.Cell style={ styles.cellDatatable }>
+                                                                <DataTable.Cell style={ commonStyles.datatables.itens.colunaUm }>
                                                                     <View>
                                                                         <Text>{ item.produto.nome }</Text>
                                                                         <Text>{formatMoney(item.vlr_unitario)} * {formatMoney(item.quantidade)} - {formatMoney(item.vlr_desconto)}</Text>
@@ -280,20 +280,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         borderTopWidth: 2
     },
-    datatable: {
-        flex: 5
-    },
-    titleDatatableUm: {
-        flex: 3,
-        justifyContent: 'flex-start'
-    },
-    titleDatatableDois: {
-        flex: 2,
-        justifyContent: 'flex-end'
-    },
-    cellDatatable: {
-        flex: 3
-    }
 })
 
 const mapStateToProps = (state) => {
@@ -305,11 +291,3 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = { limparForm, addItem, addPessoa, removeItem, controlaDadosFaturamento }
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddPedido)
-
-
-
-/*
-  
-                    
-                        
-*/
