@@ -22,7 +22,7 @@ export default class PesquisaCidade extends Component {
         this.setState({ nome })
         if (this.state.nome.length >= 3) {
             let realm = (await getRealm())
-            let cidades = realm.objects('Cidade').filtered(`nome like "*${this.state.nome}*"`)
+            let cidades = realm.objects('Cidade').filtered(`nome CONTAINS[c] "${this.state.nome}"`)
             this.setState({ cidades })
         }
     }
@@ -47,7 +47,7 @@ export default class PesquisaCidade extends Component {
                     <View style={styles.container}>
                         <Text style={styles.header}>Pesquisar cidade</Text>
                         <FormInput
-                            label="Digite um parametro para pesquisa..."
+                            label="Digite 3 caracteres para buscar."
                             value={this.state.nome}
                             onChangeText={this.setaNome}
                         />
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     header: {
-        backgroundColor: '#7c2bff',
+        backgroundColor: '#005000',
         color: 'black',
         textAlign: 'center',
         padding: 15,

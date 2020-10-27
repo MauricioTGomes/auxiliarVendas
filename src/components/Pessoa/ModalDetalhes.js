@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'black'
     },
     header: {
-        backgroundColor: '#504dff',
+        backgroundColor: 'blue',
         color: 'black',
         textAlign: 'center',
         padding: 15,

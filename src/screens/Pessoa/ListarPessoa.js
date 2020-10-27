@@ -42,31 +42,35 @@ class ListarPessoa extends Component {
     }
 
     buscarPessoas = async (parametrosBuscar, page = 1) => {
-        this.setState({ parametrosBuscar, loader: true })
+        this.setState({ parametrosBuscar })
         let realm = (await getRealm())
         
         let pessoas = []
-        if (this.state.parametrosBuscar != '') {
-            pessoas = realm.objects('Pessoa').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}" AND (razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR fantasia CONTAINS[c] "${this.state.parametrosBuscar}" OR nome CONTAINS[c] "${this.state.parametrosBuscar}" OR cpf CONTAINS[c] "${this.state.parametrosBuscar}" OR cnpj CONTAINS[c] "${this.state.parametrosBuscar}")`)
-        } else {
-            pessoas = realm.objects('Pessoa').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}"`)
+        if (this.state.parametrosBuscar.length >= 3) {
+            this.setState({ loader: true })
+            pessoas = await realm.objects('Pessoa').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}" AND (razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR fantasia CONTAINS[c] "${this.state.parametrosBuscar}" OR nome CONTAINS[c] "${this.state.parametrosBuscar}" OR cpf CONTAINS[c] "${this.state.parametrosBuscar}" OR cnpj CONTAINS[c] "${this.state.parametrosBuscar}")`)
+        } else if (this.state.parametrosBuscar == '') {
+            this.setState({ loader: true })
+            pessoas = await realm.objects('Pessoa').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}"`)
         }
 
-        let totalItens = pessoas.length
-        let pageInicial = (page * 50) - 50
-        
-        let pagination = {
-            totalItens ,
-            page,
-            inicio: pageInicial + 1,
-            fim: totalItens < 50 ? totalItens : pageInicial + 50,
+        if (this.state.parametrosBuscar.length >= 3 || this.state.parametrosBuscar == '') {
+            let totalItens = pessoas.length
+            let pageInicial = (page * 50) - 50
+            
+            let pagination = {
+                totalItens ,
+                page,
+                inicio: pageInicial + 1,
+                fim: totalItens < 50 ? totalItens : pageInicial + 50,
+            }
+    
+            this.setState({ 
+                pagination,
+                pessoas: pessoas.slice(pageInicial, pageInicial + 50),
+                loader: false
+            })
         }
-
-        this.setState({ 
-            pagination,
-            pessoas: pessoas.slice(pageInicial, pageInicial + 50),
-            loader: false
-        })
     }
 
     addPessoa = () => this.props.navigation.navigate('AddPessoa')
@@ -81,7 +85,7 @@ class ListarPessoa extends Component {
     getRightContent = (pessoaID) => {
         return (
             <TouchableOpacity style={ [commonStyles.swipeable, {backgroundColor: 'green'}] } onPress={() => this.editarPessoa(pessoaID)}>
-                <Icon name='pencil' size={30} color='white' />
+                <Icon name='pencil' size={20} color='white' />
             </TouchableOpacity>
         )
     }
@@ -89,7 +93,7 @@ class ListarPessoa extends Component {
     getLeftContent = (pessoaId) => {
         return (
             <TouchableOpacity style={ [commonStyles.swipeable, {backgroundColor: 'blue'}] } onPress={() => this.abreModalDetalhes(pessoaId)}>
-                <Icon name='info' size={30} color='white' />
+                <Icon name='info' size={20} color='white' />
             </TouchableOpacity>
         )
     }
@@ -110,7 +114,7 @@ class ListarPessoa extends Component {
                 
                 <View style={{flex: 7}}>
                     <Searchbar
-                        placeholder="Buscar pessoa"
+                        placeholder="Digite 3 caracteres para buscar."
                         onChangeText={this.buscarPessoas}
                         value={this.state.parametrosBuscar}
                     />

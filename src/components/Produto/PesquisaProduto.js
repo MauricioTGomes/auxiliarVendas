@@ -9,6 +9,7 @@ import {
 } from 'react-native'
 import { DataTable } from 'react-native-paper';
 
+import commonStyles from '../../commonStyles'
 import FormInput from '../Form/Input'
 import getRealm from '../../realm/realm';
 import BotaoPesquisar from '../Form/BotaoPesquisar'
@@ -56,26 +57,36 @@ export default class PesquisaProduto extends Component {
                     <View style={styles.container}>
                         <Text style={styles.header}>Pesquisar produtos</Text>
                         <FormInput
-                            label="Digite um parametro para pesquisa..."
+                            label="Digite 3 caracteres para buscar."
                             value={this.state.nome}
                             onChangeText={this.buscaProduto}
                         />
 
                         <ScrollView>
-                            <DataTable style={{flex: 4}}>
-                                <DataTable.Header>
-                                    <DataTable.Title style={{flex: 2}}>Nome</DataTable.Title>
-                                    <DataTable.Title style={{justifyContent: 'flex-end'}}>Estoque</DataTable.Title>
-                                    <DataTable.Title style={{justifyContent: 'flex-end'}}>Valor (R$)</DataTable.Title>
+                            <DataTable>
+                                <DataTable.Header style={ commonStyles.datatables.datatableHeader }>
+                                    <View style={ commonStyles.datatables.produtos.viewRow }>
+                                        <Text style={ commonStyles.datatables.produtos.titleNome }>Nome</Text>
+                                        <View style={ commonStyles.datatables.produtos.textoValorEstoque }>
+                                            <Text style={ commonStyles.datatables.produtos.titleEstVlr }>Estoque</Text>
+                                            <Text style={ commonStyles.datatables.produtos.titleEstVlr }>Valor (R$)</Text>
+                                        </View>
+                                    </View>                                
                                 </DataTable.Header>
 
                                 {
                                     this.state.produtos.map((produto, index) => {
                                         return (
-                                            <DataTable.Row onPress={() => this.setaProduto(produto)} key={index}>
-                                                <DataTable.Cell>{ produto.nome }</DataTable.Cell>
-                                                <DataTable.Cell numeric>{ formatMoney(produto.qtd_estoque) }</DataTable.Cell>
-                                                <DataTable.Cell numeric>{ formatMoney(produto.vlr_venda) }</DataTable.Cell>
+                                            <DataTable.Row key={index} style={ commonStyles.datatables.produtos.viewRow } onPress={() => this.setaProduto(produto)}>
+                                                <DataTable.Cell>
+                                                    <View>
+                                                        <Text style={ commonStyles.datatables.produtos.titleNome }>{ produto.nome }</Text>
+                                                        <View style={ commonStyles.datatables.produtos.textoValorEstoque }>
+                                                            <Text style={ commonStyles.datatables.produtos.titleEstVlr }>{ formatMoney(produto.qtd_estoque) }</Text>
+                                                            <Text style={ commonStyles.datatables.produtos.titleEstVlr }>{ formatMoney(produto.vlr_venda) }</Text>
+                                                        </View>
+                                                    </View>                                                  
+                                                </DataTable.Cell>
                                             </DataTable.Row>
                                         )
                                     })
@@ -102,7 +113,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     header: {
-        backgroundColor: '#7c2bff',
+        backgroundColor: '#005000',
         color: 'black',
         textAlign: 'center',
         padding: 15,

@@ -58,10 +58,12 @@ class Auth extends Component {
                 })
                 realm.commitTransaction() 
 
-                await baixarPessoas()
-                await baixarProdutos()
-                await baixarPedidos()
             }
+            
+            await baixarPessoas()
+            await baixarProdutos()
+            await baixarPedidos()
+
             this.setState({ loader: false })
             this.props.navigation.navigate('Home')
         } catch(e){

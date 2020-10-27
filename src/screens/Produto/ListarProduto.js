@@ -79,12 +79,12 @@ class ListarProduto extends Component {
 
                     <ScrollView>
                         <DataTable>
-                            <DataTable.Header style={ styles.datatableHeader }>
-                                <View style={ styles.viewRow }>
-                                    <Text style={ styles.titleNome }>Nome</Text>
-                                    <View style={ styles.textoValorEstoque }>
-                                        <Text style={ styles.titleEstVlr }>Estoque</Text>
-                                        <Text style={ styles.titleEstVlr }>Valor (R$)</Text>
+                            <DataTable.Header style={ commonStyles.datatables.datatableHeader }>
+                                <View style={ commonStyles.datatables.produtos.viewRow }>
+                                    <Text style={ commonStyles.datatables.produtos.titleNome }>Nome</Text>
+                                    <View style={ commonStyles.datatables.produtos.textoValorEstoque }>
+                                        <Text style={ commonStyles.datatables.produtos.titleEstVlr }>Estoque</Text>
+                                        <Text style={ commonStyles.datatables.produtos.titleEstVlr }>Valor (R$)</Text>
                                     </View>
                                 </View>                                
                             </DataTable.Header>
@@ -92,11 +92,11 @@ class ListarProduto extends Component {
                             {
                                 this.state.produtos.map((produto, index) => {
                                     return (
-                                        <DataTable.Row key={index} style={ styles.rowDatatable }>
+                                        <DataTable.Row key={index}>
                                             <DataTable.Cell>
-                                                <View style={ styles.viewRow }>
+                                                <View>
                                                     <Text>{ produto.nome }</Text>
-                                                    <View style={ styles.textoValorEstoque }>
+                                                    <View>
                                                         <Text>{ formatMoney(produto.qtd_estoque) }</Text>
                                                         <Text>{ formatMoney(produto.vlr_venda) }</Text>
                                                     </View>
@@ -128,30 +128,5 @@ class ListarProduto extends Component {
         )
     }
 }
-
-const styles = StyleSheet.create({
-    titleEstVlr: {
-        fontSize: 10,
-        textAlign: 'right',
-    },
-    titleNome: {
-        fontSize: 15,
-    },
-    datatableHeader: {
-        height: 50,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)'
-    },
-    rowDatatable: {
-        height: 60,
-        margin: 5
-    },
-    textoValorEstoque: {
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    viewRow: {
-        width: Dimensions.get('window').width - 50
-    }
-})
 
 export default ListarProduto

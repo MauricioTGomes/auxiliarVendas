@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
 import axios from 'axios'
@@ -7,7 +7,10 @@ import { connect } from 'react-redux'
 import Header from '../components/Header'
 import { setaUser } from '../store/actions/auth'
 import getRealm from '../realm/realm'
-import { baixarPedidos, baixarPessoas, baixarProdutos } from '../services/Functions'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import { iniciaSincronismo, baixarPedidos, baixarPessoas, baixarProdutos } from '../services/Functions'
+import moment from 'moment'
+import 'moment/src/locale/pt-br'
 
 class Inicial extends Component {
     state = {
@@ -44,15 +47,16 @@ class Inicial extends Component {
         this.props.navigation.navigate('AuthOrApp')
     }
 
-    sincronizar = async tipo => {
+    sincronizar = async () => {
         this.setState({ loader: true })
-        if (tipo == 'PESSOA') {
-            await baixarPessoas()
-        } else if(tipo == 'PRODUTO') {
-            await baixarProdutos()
+        let retorno = await iniciaSincronismo()
+
+        if (retorno) {
+            Alert.alert('Sucesso!', `Os dados foram atualizados.`)
         } else {
-            await baixarPedidos()
+            Alert.alert('Erro!', 'Erro ao sincronizar, verifique sua conexão.')
         }
+
         this.getDadosTela()
         this.setState({ loader: false })
     }
@@ -64,42 +68,32 @@ class Inicial extends Component {
 
                 <Header {...this.props}/>
                 
+                <View style={styles.containerBemVindo}>
+                    <View>
+                        <Text style={styles.textoBemVindo}>Bem-vindo,</Text>
+                        <Text style={styles.textoNome}>{ this.props.auth.user.name }</Text>
+                    </View>
+
+                    <TouchableOpacity style={styles.botaoSair} activeOpacity={0.7} onPress={() => this.logout()}>
+                        <Icon name='sign-out' size={30} color='white' />
+                    </TouchableOpacity>
+                </View>
+
                 <View style={styles.container}>
-                    <Text style={styles.texto}>Bem-vindo: { this.props.auth.user.name }</Text>
-                </View>
+                    <Text style={styles.textoUltimaAtt}>Atualizações</Text>
 
-                <View style={styles.container}>
-                    <Text style={styles.texto}>Pessoa: { this.state.ultimaAttPessoa }</Text>
-                    <Text style={styles.texto}>Produto: { this.state.ultimaAttProduto }</Text>
-                    <Text style={styles.texto}>Pedido: { this.state.ultimaAttPedido }</Text>
-                </View>
-
-                <View style={styles.containerBotao}>
-                    <TouchableOpacity onPress={() => this.sincronizar('PESSOA')}>
-                        <View style={styles.botaoSync}>
-                            <Text style={styles.botaoTexto}>Sincronizar pessoas</Text>
+                    <TouchableOpacity style={ styles.botaoSync } onPress={() => this.sincronizar()}>
+                        <View style={ styles.containerBotao }>
+                            <Text style={styles.botaoTexto}>Atualizar dados</Text>
+                            <Icon name='refresh' size={30} color='white' />
                         </View>
                     </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => this.sincronizar('PRODUTO')}>
-                        <View style={styles.botaoSync}>
-                            <Text style={styles.botaoTexto}>Sincronizar Produto</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.containerBotao}>
-                    <TouchableOpacity onPress={() => this.sincronizar('PEDIDO')}>
-                        <View style={styles.botaoSync}>
-                            <Text style={styles.botaoTexto}>Sincronizar pedidos</Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => this.logout()}>
-                        <View style={styles.botaoSync}>
-                            <Text style={styles.botaoTexto}>Sair</Text>
-                        </View>
-                    </TouchableOpacity>
+                    
+                    <View style={ styles.containerData }>
+                        <Text style={styles.textoData}>Pessoa: { moment(this.state.ultimaAttPessoa, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                        <Text style={styles.textoData}>Produto: { moment(this.state.ultimaAttProduto, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                        <Text style={styles.textoData}>Pedido: { moment(this.state.ultimaAttPedido, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                    </View>
                 </View>
             </View>
         )
@@ -107,33 +101,59 @@ class Inicial extends Component {
 }
 
 const styles = StyleSheet.create({
-    button: { padding: 20, backgroundColor: "#ccc", marginBottom: 10 },
-    tela: {
-        flex: 1
-    },
     container: {
-        alignItems: 'flex-start',
-        marginBottom: 15
+        margin: 20
     },
-    texto: {
-        fontSize: 20
+    botaoSair: {
+        width: 50,
+        height: 70,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'red'
+    },
+    containerBemVindo: {
+        margin: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    textoBemVindo: {
+        fontSize: 30
+    },
+    textoNome: {
+        fontSize: 30,
+        marginLeft: 25
     },
     botaoSync: {
-        margin: 10,
-        width: 150,
-        height: 150,
-        borderRadius: 20,
-        backgroundColor: 'rgba(0,0,0,0.5)'
-    },
-    botaoTexto: {
-        marginLeft: 35,
-        marginTop: 40,
-        fontSize: 15
+        marginTop: 10,
+        marginBottom: 10,
+        height: 50,
+        borderRadius: 15,
+        backgroundColor: 'rgba(0,0,0,0.3)'
     },
     containerBotao: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
-    }
+        justifyContent: 'space-evenly',
+        marginTop: 10
+    },
+    botaoTexto: {
+        fontSize: 20,
+    },
+    tela: {
+        flex: 1
+    },
+    containerData: {
+        margin: 20
+    },
+    textoUltimaAtt: {
+        fontSize: 20,
+        marginBottom: 5,
+        textAlign: 'center'
+    },
+    textoData: {
+        marginLeft: 5,
+        fontSize: 20
+    },
 })
 
 const mapStateToProps = (state) => {

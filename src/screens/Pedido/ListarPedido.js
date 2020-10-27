@@ -76,8 +76,7 @@ class ListarPedido extends Component {
     }
 
     addPedido = pessoa => {
-        delete pessoa.data_criacao
-        this.props.navigation.navigate('AddPedido', {pessoa})
+        this.props.navigation.navigate('AddPedido', {pessoaId: pessoa.id})
         this.setState({ showModalPesquisaPessoa: false })
     }
     
@@ -165,7 +164,7 @@ class ListarPedido extends Component {
                         style={ commonStyles.filtrarButton }
                         activeOpacity={0.7}
                     >
-                        <Icon name={ this.state.filtrarEstornados ? 'eye' : 'eye-slash' } size={20} color='white' />
+                        <Icon name={ this.state.filtrarEstornados ? 'eye-slash' : 'eye' } size={20} color='white' />
                     </TouchableOpacity>
 
                     <TouchableOpacity

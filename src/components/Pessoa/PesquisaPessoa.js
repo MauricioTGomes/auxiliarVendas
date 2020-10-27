@@ -20,10 +20,9 @@ export default class PesquisaPessoa extends Component {
     setaNome = async nome => {
         this.setState({ nome })
         
-        if (this.state.nome != '') {
-            let pessoas = (await getRealm())
-                .objects('Pessoa')
-                .filtered(`nome like "*${this.state.nome}*" OR razao_social like "*${this.state.nome}*" OR fantasia like "*${this.state.nome}*"`)
+        if (this.state.nome.length >= 3) {
+            let pessoas = (await getRealm()).objects('Pessoa')
+                .filtered(`ativo = 1 AND (razao_social CONTAINS[c] "${this.state.nome}" OR fantasia CONTAINS[c] "${this.state.nome}" OR nome CONTAINS[c] "${this.state.nome}" OR cpf CONTAINS[c] "${this.state.nome}" OR cnpj CONTAINS[c] "${this.state.nome}")`)
     
             this.setState({ pessoas })
         }
@@ -39,7 +38,7 @@ export default class PesquisaPessoa extends Component {
                 <View style={styles.container}>
                     <Text style={styles.header}>Pesquisar pessoas</Text>
                     <FormInput
-                        label="Digite um parametro para pesquisa..."
+                        label="Digite 3 caracteres para buscar."
                         value={this.state.nome}
                         onChangeText={this.setaNome}
                     />
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     header: {
-        backgroundColor: '#7c2bff',
+        backgroundColor: '#005000',
         color: 'black',
         textAlign: 'center',
         padding: 15,

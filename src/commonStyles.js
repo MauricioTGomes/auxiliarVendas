@@ -1,3 +1,5 @@
+import {Dimensions} from 'react-native'
+
 export default {
     optionsInputMoney: {
         precision: 2,
@@ -40,6 +42,7 @@ export default {
     swipeable: {
         flexDirection: 'row',
         alignItems: 'center',
+        borderRadius: 5,
         justifyContent: 'flex-end',
         paddingHorizontal: 20
     },
@@ -67,6 +70,7 @@ export default {
     },
     datatables: {
         datatableHeader: {
+            padding: 5,
             height: 50,
             backgroundColor: 'rgba(0, 0, 0, 0.1)'
         },
@@ -95,6 +99,26 @@ export default {
                 flex: 3,
                 justifyContent: 'flex-start'
             }
+        },
+        produtos: {
+            rowDatatable: {
+                height: 60,
+                margin: 5
+            },
+            titleNome: {
+                fontSize: 15,
+            },
+            titleEstVlr: {
+                fontSize: 10,
+                textAlign: 'right',
+            },
+            viewRow: {
+                width: Dimensions.get('window').width - 50
+            },
+            textoValorEstoque: {
+                flexDirection: 'row',
+                justifyContent: 'space-between'
+            },
         }
     }
 }

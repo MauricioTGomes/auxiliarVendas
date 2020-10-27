@@ -8,14 +8,15 @@ import 'moment/locale/pt-br'
 
 const iniciaSincronismo = async () => {
     let netInfo = null
-    await NetInfo.fetch().then(state => {
-        netInfo = state
-    });
+    await NetInfo.fetch().then(state => { netInfo = state });
     
     if (netInfo && netInfo.isConnected) {
         await baixarProdutos()
         await baixarPessoas()
         await baixarPedidos()
+        return true
+    } else {
+        return false
     }
 }
 

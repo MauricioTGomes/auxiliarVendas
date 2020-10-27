@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
 import {connect} from 'react-redux'
 import { TextInputMask } from 'react-native-masked-text'
+//import TextInputMask from 'react-native-text-input-mask'
 import {Button, DataTable, Card } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import Swipeable from 'react-native-gesture-handler/Swipeable'
@@ -11,8 +12,9 @@ import PesquisaProduto from '../../components/Produto/PesquisaProduto'
 import {formatMoney} from '../../components/Functions'
 import { limparForm, addPessoa, addItem, removeItem, controlaDadosFaturamento } from '../../store/actions/pedido'
 import commonStyles from '../../commonStyles'
+import getRealm from '../../realm/realm'
 
-const itemInicial = {produto: {}, index: null, produto_id: null, quantidade: '', vlr_unitario: '', vlr_desconto: '', vlr_total: 0, vlr_unitario: ''}
+const itemInicial = {produto: {}, index: null, produto_id: null, quantidade: '', quantidade_formatado: '', vlr_unitario: '', vlr_desconto: '', vlr_total: 0, vlr_unitario: ''}
 
 class AddPedido extends Component {
     state = {
@@ -101,17 +103,16 @@ class AddPedido extends Component {
 
     async componentDidMount() {
         await this.props.limparForm()
-        this.props.addPessoa(this.props.route.params.pessoa)
+        let pessoa = (await getRealm()).objects('Pessoa').filtered(`id = "${this.props.route.params.pessoaId}"`)[0]
+        this.props.addPessoa(pessoa)
         this.calculaValorTotalForm()
     }
 
     render() {
         return (
             <View style={commonStyles.containerForm}>
-                <View>
-                    <Text>{this.props.route.params.pessoa.tipo == 1 ? this.props.route.params.pessoa.nome : this.props.route.params.pessoa.razao_social}</Text>
-                </View>
-
+                <Text style={ styles.nomeCliente }>{ this.props.pedido.pessoa.nomeFantasia } - { this.props.pedido.pessoa.cpfCnpj }</Text>
+                
                 <ScrollView>
                     <View>
                         <PesquisaProduto
@@ -280,6 +281,11 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         borderTopWidth: 2
     },
+    nomeCliente: {
+        fontSize: 20,
+        textAlign: 'center',
+        margin: 10
+    }
 })
 
 const mapStateToProps = (state) => {
