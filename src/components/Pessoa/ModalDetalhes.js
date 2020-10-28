@@ -28,7 +28,7 @@ export default props => {
                         <Text style={ styles.textos }>{ `${props.pessoa.cidade.nomeEstado} - ${props.pessoa.cep}` }</Text>
                         <Text style={ styles.textos }>{ `${props.pessoa.endereco} - ${props.pessoa.endereco_nro}` }</Text>
                         <Text style={ styles.textos }>{ props.pessoa.bairro }</Text>
-                        <Text style={ styles.textos }>{ props.pessoa.complemento }</Text>
+                        <Text style={ styles.textos }>{ props.pessoa.complemento }</Text>                        
                     </Card.Content>
                 </Card>
             </View>

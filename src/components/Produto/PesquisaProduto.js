@@ -77,9 +77,9 @@ export default class PesquisaProduto extends Component {
                                 {
                                     this.state.produtos.map((produto, index) => {
                                         return (
-                                            <DataTable.Row key={index} style={ commonStyles.datatables.produtos.viewRow } onPress={() => this.setaProduto(produto)}>
+                                            <DataTable.Row key={index} onPress={() => this.setaProduto(produto)}>
                                                 <DataTable.Cell>
-                                                    <View>
+                                                    <View style={ commonStyles.datatables.produtos.viewRow }>
                                                         <Text style={ commonStyles.datatables.produtos.titleNome }>{ produto.nome }</Text>
                                                         <View style={ commonStyles.datatables.produtos.textoValorEstoque }>
                                                             <Text style={ commonStyles.datatables.produtos.titleEstVlr }>{ formatMoney(produto.qtd_estoque) }</Text>

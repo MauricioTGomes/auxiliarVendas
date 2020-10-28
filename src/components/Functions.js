@@ -9,4 +9,12 @@ const formatMoney = (valor, c = 2, d = ',', t = '.') => {
     return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
 };
 
-export { formatMoney }
+const formatForCalc = valor => {
+    if (valor == undefined || valor == null || valor == '' || valor == '0,00' || typeof valor != 'string') {
+        return 0
+    }
+    
+    return parseFloat(valor.split('.').join("").replace(',', '.'))
+}
+
+export { formatMoney, formatForCalc }

@@ -98,6 +98,10 @@ export default {
             colunaUm: {
                 flex: 3,
                 justifyContent: 'flex-start'
+            },
+            colunaDois: {
+                flex: 1,
+                justifyContent: 'flex-end'
             }
         },
         produtos: {

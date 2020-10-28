@@ -171,7 +171,9 @@ const enviaPessoa = async (pessoa, realm) => {
         cidade_id: pessoa.cidade.id,
         created_at: pessoa.data_criacao,
         limite_credito: pessoa.limite_credito,
-        ie: pessoa.ie
+        ie: pessoa.ie,
+        cadastro_externo: 1,
+        cliente: 1
     }).then(resp => {
         if (resp.data.pessoa != undefined) {
             realm.write(() => {
@@ -356,7 +358,7 @@ const enviaPedido = async (pedido, realm) => {
     pedido.pagamentos.forEach(pag => {
         let pagamento = {
             "model": { "tipo": pag.forma_pagamento.tipo, "taxa_adicional": "0.00" },
-            "forma_pagamento_id": pag.forma_pagamento.id_numerama,
+            "forma_pagamento_id": pag.forma_pagamento.id,
             "valor_recebido_cliente": pag.vlr_total,
             "valor_pago": pag.vlr_total,
             "valor_total_parcelas": null,
@@ -393,7 +395,7 @@ const enviaPedido = async (pedido, realm) => {
             pedido.id_numerama = response.data.pedido.id
             realm.create('Pedido', pedido, 'modified')
         })
-    })
+    }).catch(resp => console.log(resp))
 }
 
 export { 

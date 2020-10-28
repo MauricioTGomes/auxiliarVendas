@@ -3,8 +3,6 @@ import {View, ScrollView, Alert} from 'react-native'
 import commonStyles from '../../commonStyles'
 import { Button } from 'react-native-paper'
 import { TextInputMask } from 'react-native-masked-text'
-import { validateCnpj } from 'react-native-masked-text/dist/lib/masks/cnpj.mask'
-import { validateCPF } from 'react-native-masked-text/dist/lib/masks/cpf.mask'
 import NetInfo from "@react-native-community/netinfo";
 import { enviaPessoa } from '../../services/Functions'
 import moment from 'moment'
@@ -13,8 +11,9 @@ import 'moment/locale/pt-br'
 import getRealm from '../../realm/realm';
 import FormInput from '../../components/Form/Input'
 import PesquisaCidade from '../../components/Pessoa/PesquisaCidade'
+import { formatForCalc } from '../../components/Functions'
 
-const pessoaInicial = {ativo_checkbox: 'checked', ativo: 1, nome: '', tipo: 1, cpf: '', cnpj: '', razao_social: '', fantasia: '', cidade: '', cep: '', endereco: '', endereco_nro: '', bairro: '', complemento: '', limite_credito: 0}
+const pessoaInicial = {ativo_checkbox: 'checked', ativo: 1, nome: '', tipo: 1, cpf: '', cnpj: '', razao_social: '', fantasia: '', cidade: '', cep: '', endereco: '', endereco_nro: '', bairro: '', complemento: '', limite_credito: '0,00'}
 export default class AddPessoa extends Component {
     state = {
         showModalCidade: false,
@@ -122,6 +121,7 @@ export default class AddPessoa extends Component {
             }
             
             let pessoaBanco = null
+            pessoa.limite_credito = formatForCalc(pessoa.limite_credito)
             realm.write(() => {
                 pessoaBanco = realm.create('Pessoa', pessoa, 'modified')
             })
@@ -168,6 +168,10 @@ export default class AddPessoa extends Component {
     }
 
     render() {
+        const mascaraCpfCnpj = {
+            mask: this.state.controlaCpfCnpj.type === 'cpf' ? '999.999.999-99*' : '99.999.999/9999-99'
+        }
+
         return (
             <View style={commonStyles.containerForm}>
                 <ScrollView>
@@ -185,12 +189,7 @@ export default class AddPessoa extends Component {
                             <TextInputMask
                                 {...props}
                                 type="custom"
-                                options={{
-                                    mask: this.state.controlaCpfCnpj.type === 'cpf' ? '999.999.999-99*' : '99.999.999/9999-99',
-                                    validator: value => {
-                                        return validateCnpj(value) || validateCPF(value)
-                                    },
-                                }}
+                                options={ mascaraCpfCnpj }
                                 value={this.state.controlaCpfCnpj.valor}
                                 onChangeText={this.setCpfCnpj}
                             />
@@ -253,14 +252,13 @@ export default class AddPessoa extends Component {
                     
                     <FormInput
                         label='Limite de crédito'
-                        value={this.state.pessoa.limite_credito}
+                        value={ this.state.pessoa.limite_credito }
                         render={props => 
                             <TextInputMask
                                 {...props}
                                 type='money'
-                                options={ commonStyles.optionsInputPositive }
-                                includeRawValueInChangeText
-                                onChangeText={(_, limite_credito) => this.setState({ pessoa: {...this.state.pessoa, limite_credito} })}
+                                options={commonStyles.optionsInputMoney}
+                                onChangeText={(limite_credito) => this.setState({ pessoa: {...this.state.pessoa, limite_credito} })}
                             />
                         }
                     />

@@ -7,7 +7,7 @@ export default props => {
         ...DefaultTheme,
         colors: {
             ...DefaultTheme.colors,
-            primary: 'blue',
+            primary: 'green',
             placeholder: 'black',
         },
     }
