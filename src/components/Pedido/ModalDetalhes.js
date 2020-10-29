@@ -66,7 +66,7 @@ export default props => {
                                         <DataTable.Row underlayColor='blue' rippleColor='red' key={index}>
                                             <DataTable.Cell style={ commonStyles.datatables.formaPagamento.colunaUm }>{ forma.forma_pagamento.nome }</DataTable.Cell>
                                             <DataTable.Cell style={ commonStyles.datatables.formaPagamento.colunaDois }>{ formatMoney(forma.vlr_total) }</DataTable.Cell>
-                                            <DataTable.Cell style={ commonStyles.datatables.formaPagamento.colunaTres }>{ forma.array_parcelas == undefined ? '----' : forma.array_parcelas.length }</DataTable.Cell>
+                                            <DataTable.Cell style={ commonStyles.datatables.formaPagamento.colunaTres }>{ !['PRAZO', 'BOLETO'].includes(forma.forma_pagamento.tipo) ? '----' : forma.array_parcelas.length }</DataTable.Cell>
                                         </DataTable.Row>
                                     )
                                 })

@@ -81,8 +81,9 @@ class Auth extends Component {
         const validForm = validations.reduce((t, a) => t && a)
 
         return (
-            <ImageBackground style={styles.backgroud} source={ backgroundImage }>
-                
+            //<ImageBackground style={styles.backgroud} source={ backgroundImage }>
+            //</ImageBackground> 
+            <View style={styles.backgroud}>
                 <OrientationLoadingOverlay visible={this.state.loader} color="white" indicatorSize="large" messageFontSize={24} message={this.state.mensagem}/>
 
                 <Text style={styles.title}>Pedidos</Text>
@@ -114,7 +115,7 @@ class Auth extends Component {
                         Entrar
                     </Button>
                 </View>
-            </ImageBackground>
+            </View>
         )
     }
 }
@@ -124,7 +125,8 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.8)'
     },
     title: {
         color: 'black',
@@ -141,10 +143,11 @@ const styles = StyleSheet.create({
         width: '90%'
     },
     button: {
-        //backgroundColor: '#080',
+        backgroundColor: '#080',
+        width: 120,
         marginTop: 10,
         padding: 10,
-        alignItems: 'center',
+        marginLeft: 100,
         borderRadius: 7
     },
     buttonText: {

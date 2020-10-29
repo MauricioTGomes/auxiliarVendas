@@ -8,9 +8,14 @@ import Header from '../components/Header'
 import { setaUser } from '../store/actions/auth'
 import getRealm from '../realm/realm'
 import Icon from 'react-native-vector-icons/FontAwesome'
-import { iniciaSincronismo, baixarPedidos, baixarPessoas, baixarProdutos } from '../services/Functions'
+import { iniciaSincronismo } from '../services/Functions'
+import BackgroundTimer from 'react-native-background-timer';
 import moment from 'moment'
 import 'moment/src/locale/pt-br'
+
+BackgroundTimer.runBackgroundTimer(() => { 
+    iniciaSincronismo()
+}, 900000);// 3600000
 
 class Inicial extends Component {
     state = {
@@ -22,7 +27,6 @@ class Inicial extends Component {
     
     async componentDidMount() {
         const self = this
-        
         setTimeout(function () {
             self.getDadosTela()
         }, 200)

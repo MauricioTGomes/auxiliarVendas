@@ -12,8 +12,6 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
-    
-      <service android:name=".MyTaskService"  android:enabled="true" android:label="MyTaskService"/>
       
       <activity
         android:name=".MainActivity"

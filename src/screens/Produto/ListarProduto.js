@@ -94,11 +94,11 @@ class ListarProduto extends Component {
                                     return (
                                         <DataTable.Row key={index}>
                                             <DataTable.Cell>
-                                                <View>
-                                                    <Text>{ produto.nome }</Text>
-                                                    <View>
-                                                        <Text>{ formatMoney(produto.qtd_estoque) }</Text>
-                                                        <Text>{ formatMoney(produto.vlr_venda) }</Text>
+                                                <View style={ commonStyles.datatables.produtos.viewRow }>
+                                                    <Text style={ commonStyles.datatables.produtos.titleNome }>{ produto.nome }</Text>
+                                                    <View style={ commonStyles.datatables.produtos.textoValorEstoque }>
+                                                        <Text style={ commonStyles.datatables.produtos.titleEstVlr }>{ formatMoney(produto.qtd_estoque) }</Text>
+                                                        <Text style={ commonStyles.datatables.produtos.titleEstVlr }>{ formatMoney(produto.vlr_venda) }</Text>
                                                     </View>
                                                 </View>                                                  
                                             </DataTable.Cell>

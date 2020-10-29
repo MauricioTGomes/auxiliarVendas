@@ -46,15 +46,15 @@ class ListarPedido extends Component {
     }
 
     buscaPedido = async (parametrosBuscar, page = 1) => {
-        this.setState({ parametrosBuscar, loader: true })
+        this.setState({ parametrosBuscar })
         let realm = (await getRealm())
         
         let pedidos = []
-        if (this.state.parametrosBuscar != '') {
+        if (this.state.parametrosBuscar.length >= 3) {
             pedidos = await realm.objects('Pedido')
-                        .filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}" AND (numero CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.nome CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.fantasia CONTAINS[c] "${this.state.parametrosBuscar}")`)
+                        .filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}" AND (pessoa.nome CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.fantasia CONTAINS[c] "${this.state.parametrosBuscar}")`)
                         .sorted('data_criacao')
-        } else {
+        } else if(this.state.parametrosBuscar == '') {
             pedidos = await realm.objects('Pedido').filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}"`)
         }
         

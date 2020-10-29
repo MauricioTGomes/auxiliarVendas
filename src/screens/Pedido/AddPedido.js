@@ -104,7 +104,7 @@ class AddPedido extends Component {
         return (
             <View style={commonStyles.containerForm}>
                 <Text style={ styles.nomeCliente }>{ this.props.pedido.pessoa.nomeFantasia } - { this.props.pedido.pessoa.cpfCnpj }</Text>
-                <Text style={ styles.nomeCliente }>Limite disponível: { this.props.pedido.pessoa.limite_credito <= 0 ? 'Ilimitado' : formatMoney(this.state.limiteCreditoDisponivel) }</Text>
+                <Text style={ styles.limiteCredito }>Limite disponível: { this.props.pedido.pessoa.limite_credito <= 0 ? 'Ilimitado' : formatMoney(this.state.limiteCreditoDisponivel) }</Text>
                 
                 <ScrollView>
                     <View>
@@ -268,6 +268,12 @@ const styles = StyleSheet.create({
         fontSize: 20,
         textAlign: 'center',
         margin: 10
+    },
+    limiteCredito: {
+        fontSize: 15,
+        textAlign: 'center',
+        marginLeft: 10,
+        marginRight: 10
     }
 })
 
