@@ -5,9 +5,11 @@ import {
     StyleSheet,
     TouchableWithoutFeedback,
     Modal,
-    ScrollView
+    ScrollView,
+    TouchableOpacity
 } from 'react-native'
 import { DataTable } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 import commonStyles from '../../commonStyles'
 import FormInput from '../Form/Input'
@@ -55,7 +57,14 @@ export default class PesquisaProduto extends Component {
                     </TouchableWithoutFeedback>
 
                     <View style={styles.container}>
-                        <Text style={styles.header}>Pesquisar produtos</Text>
+                        <View style={ commonStyles.modalPesquisa.header }>
+                            <Text style={ commonStyles.modalPesquisa.textoHader }>Pesquisa produtos</Text>
+                            
+                            <TouchableOpacity  onPress={this.showModal}>
+                                <Icon name="close" size={20} color='white'/>
+                            </TouchableOpacity>
+                        </View>
+
                         <FormInput
                             label="Digite 3 caracteres para buscar."
                             value={this.state.nome}
@@ -111,13 +120,6 @@ const styles = StyleSheet.create({
     },
     container: {
         backgroundColor: 'white'
-    },
-    header: {
-        backgroundColor: '#005000',
-        color: 'black',
-        textAlign: 'center',
-        padding: 15,
-        fontSize: 18,
     },
     cell: {
         height: 50,

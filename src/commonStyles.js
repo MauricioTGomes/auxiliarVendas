@@ -124,5 +124,18 @@ export default {
                 justifyContent: 'space-between'
             },
         }
+    },
+    modalPesquisa: {
+        header: {
+            backgroundColor: '#504dff',
+            textAlign: 'center',
+            padding: 15,
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+        },
+        textoHader: {
+            color: 'black',
+            fontSize: 18,
+        },
     }
 }

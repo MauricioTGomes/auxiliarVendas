@@ -68,8 +68,11 @@ class FormFormasPagamento extends Component {
                     vlr_total: item.vlr_total
                 }
             })
-            
+            let valoresPrazo = 0
+
             let pagamentos = this.props.pedido.formasPagamento.map(formaFor => {
+                if (['PRAZO', 'BOLETO'].includes(formaFor.forma_pagamento.tipo)) valoresPrazo += formatForCalc(formaFor.vlr_total)
+
                 return { 
                     ...formaFor,
                     vlr_restante: formatForCalc(formaFor.vlr_total),
@@ -77,6 +80,13 @@ class FormFormasPagamento extends Component {
                     parcelas: formaFor.array_parcelas.map(parcelaFor => { return { ...parcelaFor, valor_original: formatForCalc(parcelaFor.valor_original) } })
                 }
             })
+
+            let limite = pessoa.limite_credito - pessoa.saldo_atrasado - pessoa.saldo_em_dia
+            if (valoresPrazo > limite && limite > 0) {
+                Alert.alert('Atenção!', `Cliente sem crédito para vendas a prazo.`)
+                return false
+            }
+
             let pedido = {
                 id: lastId+1,
                 pessoa,
@@ -85,7 +95,8 @@ class FormFormasPagamento extends Component {
                 vlr_liquido: formatForCalc(this.state.faturamento.vlr_liquido),
                 vlr_bruto: formatForCalc(this.state.faturamento.vlr_bruto),
                 vlr_desconto: formatForCalc(this.state.faturamento.vlr_desconto),
-                data_criacao: moment().locale('pt-br').format('YYYY-MM-DD')
+                data_criacao: moment().locale('pt-br').format('YYYY-MM-DD'),
+                estornado: 0
             }
 
             let pedidoBanco = null
@@ -197,7 +208,6 @@ class FormFormasPagamento extends Component {
     setaForma = forma_pagamento => {
         let forma = {...formaInicial, forma_pagamento}
         forma.vlr_total = this.state.faturamento.vlr_restante
-        forma.conta_bancaria_id = 124
         forma.qtd_dias = 30
         forma.nro_parcelas = 1
 
@@ -280,7 +290,7 @@ class FormFormasPagamento extends Component {
                         onPress={() => this.calcularParcelas()}
                         disabled={parseInt(this.state.forma.nro_parcelas) <= 0 || parseInt(this.state.forma.qtd_dias) <= 0 || this.state.forma.primeira_cobranca === ''}
                     >
-                        <Icon name='calculator' size={25} color='white'/> Calcular parcelas
+                        <Icon name='calculator' size={25} color='white'/>  Calcular parcelas
                     </Button>
                 </View>
 
@@ -304,7 +314,7 @@ class FormFormasPagamento extends Component {
                                                 <DataTable.Row underlayColor='blue' rippleColor='red' key={index}>
                                                     <DataTable.Cell>{ parcela.nro_parcela }</DataTable.Cell>
                                                     <DataTable.Cell>{ parcela.data_vencimento_formatada }</DataTable.Cell>
-                                                    <DataTable.Cell>{ formatMoney(parcela.valor_original)}</DataTable.Cell>
+                                                    <DataTable.Cell>{ parcela.valor_original }</DataTable.Cell>
                                                 </DataTable.Row>
                                             )
                                         }) :
@@ -316,17 +326,9 @@ class FormFormasPagamento extends Component {
                     </Card>
                 </View>
 
-                <View>
-                    <Button 
-                        disabled={ this.state.forma.array_parcelas === undefined || this.state.forma.array_parcelas.length <= 0 } 
-                        style={ styles.button } 
-                        mode="contained" color="green"
-                        onPress={() => this.addForma()}
-                    >
-                        <Icon name='plus' size={25} color='white'/>
-                        Adicionar forma
-                    </Button>
-                </View>
+                <Button disabled={ this.state.forma.array_parcelas === undefined || this.state.forma.array_parcelas.length <= 0 } mode="contained" color="green" onPress={() => this.addForma()} > 
+                    Adicionar forma  <Icon name='plus' size={25} color='white'/>
+                </Button>
             </>
         )
     }
@@ -351,16 +353,9 @@ class FormFormasPagamento extends Component {
                     </View>
                 </View>
 
-                <View style={  commonStyles.containerInputTotal }>
-                    <Button 
-                        disabled={ this.state.forma.vlr_total == 0 } style={ styles.button }
-                        mode="contained" color="green"
-                        onPress={() => this.addForma()}
-                    >
-                        <Icon name='plus' size={25} color='white'/>
-                        Adicionar forma
-                    </Button>
-                </View>
+                <Button disabled={ this.state.forma.vlr_total == 0 } mode="contained" color="green" onPress={() => this.addForma()} > 
+                    Adicionar forma  <Icon name='plus' size={25} color='white'/>
+                </Button>
             </>
         )
     }
@@ -470,18 +465,14 @@ class FormFormasPagamento extends Component {
                                 </Card>
                             </View>
 
-                            <View>
-                                <Button 
-                                    disabled={ this.props.pedido.formasPagamento.length <= 0 || this.state.faturamento.vlr_restante > 0 } 
-                                    style={ styles.button } 
-                                    mode="contained" color="green"
-                                    onPress={() => this.salvarPedido()}
-                                >
-                                    <Icon name='plus' size={25} color='white'/>
-                                    Emitir pedido
-                                </Button>
-                            </View>
-
+                            <Button
+                                disabled={ this.props.pedido.formasPagamento.length <= 0 || this.state.faturamento.vlr_restante > 0 } 
+                                mode="contained" color="green"
+                                onPress={() => this.salvarPedido()}
+                                style={ styles.button }
+                            >
+                                Gravar pedido
+                            </Button>
                         </Card.Content>
                     </Card>
                 </ScrollView>
@@ -499,6 +490,8 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     button: {
+        justifyContent: 'center',
+        alignItems: 'center',
         height: 50,
         marginLeft: 25,
         marginTop: 20

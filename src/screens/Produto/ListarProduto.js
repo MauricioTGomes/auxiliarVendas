@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { View, ScrollView, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native' 
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native' 
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { DataTable, Searchbar } from 'react-native-paper';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
@@ -41,9 +41,13 @@ class ListarProduto extends Component {
         
         let produtos = []
         if (this.state.parametrosBuscar != '') {
-            produtos = await realm.objects('Produto').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}" AND nome CONTAINS[c] "${parametrosBuscar}"`)
+            produtos = await realm.objects('Produto')
+                        .filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}" AND nome CONTAINS[c] "${parametrosBuscar}"`)
+                        .sorted('nome', false)
         } else {
-            produtos = await realm.objects('Produto').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}"`)
+            produtos = await realm.objects('Produto')
+                        .filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}"`)
+                        .sorted('nome', false)
         }
 
         let totalItens = produtos.length
@@ -118,15 +122,29 @@ class ListarProduto extends Component {
                     
                     <TouchableOpacity
                         onPress={this.filtroAtivo}
-                        style={ commonStyles.filtrarButton }
+                        style={ styles.filtroButton }
                         activeOpacity={0.7}
                     >
-                        <Icon name={ this.state.filtrarAtivos ? 'eye' : 'eye-slash' } size={20} color='white' />
+                        <Icon name={ this.state.filtrarAtivos ? 'eye-slash' : 'eye' } size={20} color='white' />
                     </TouchableOpacity>
                 </View>
             </View>
         )
     }
 }
+
+const styles = StyleSheet.create({
+    filtroButton: {
+        position: 'absolute',
+        right: 30,
+        bottom: 50,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'blue'
+    },
+})
 
 export default ListarProduto

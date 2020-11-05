@@ -7,9 +7,13 @@ import {
     StyleSheet,
     TouchableWithoutFeedback,
     Modal,
+    TouchableOpacity,
+    ScrollView
 } from 'react-native'
 import { DataTable } from 'react-native-paper';
 import BotaoPesquisar from '../Form/BotaoPesquisar'
+import commonStyles from '../../commonStyles'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 const initialState = { nome: '', cidades: [], showModal: false}
 
@@ -45,28 +49,37 @@ export default class PesquisaCidade extends Component {
                     </TouchableWithoutFeedback>
 
                     <View style={styles.container}>
-                        <Text style={styles.header}>Pesquisar cidade</Text>
+                        <View style={ commonStyles.modalPesquisa.header }>
+                            <Text style={ commonStyles.modalPesquisa.textoHader }>Detalhes pedido</Text>
+                            
+                            <TouchableOpacity  onPress={this.showModal}>
+                                <Icon name="close" size={20} color='white'/>
+                            </TouchableOpacity>
+                        </View>
+
                         <FormInput
                             label="Digite 3 caracteres para buscar."
                             value={this.state.nome}
                             onChangeText={this.setaNome}
                         />
 
-                        <DataTable>
-                            <DataTable.Header>
-                            <DataTable.Title sortDirection='descending'>Nome</DataTable.Title>
-                            </DataTable.Header>
+                        <ScrollView>
+                            <DataTable>
+                                <DataTable.Header>
+                                <DataTable.Title sortDirection='descending'>Nome</DataTable.Title>
+                                </DataTable.Header>
 
-                            {
-                                this.state.cidades.map((cidade, index) => {
-                                    return (
-                                        <DataTable.Row onPress={() => this.setaCidade(cidade)} key={index}>
-                                            <DataTable.Cell style={styles.cell}>{ cidade.nomeEstado }</DataTable.Cell>
-                                        </DataTable.Row>
-                                    )
-                                })
-                            }
-                        </DataTable>
+                                {
+                                    this.state.cidades.map((cidade, index) => {
+                                        return (
+                                            <DataTable.Row onPress={() => this.setaCidade(cidade)} key={index}>
+                                                <DataTable.Cell style={styles.cell}>{ cidade.nomeEstado }</DataTable.Cell>
+                                            </DataTable.Row>
+                                        )
+                                    })
+                                }
+                            </DataTable>
+                        </ScrollView>
                     </View>
 
                     <TouchableWithoutFeedback onPress={this.showModal}>
@@ -85,13 +98,6 @@ const styles = StyleSheet.create({
     },
     container: {
         backgroundColor: 'white'
-    },
-    header: {
-        backgroundColor: '#005000',
-        color: 'black',
-        textAlign: 'center',
-        padding: 15,
-        fontSize: 18,
     },
     cell: {
         height: 50,

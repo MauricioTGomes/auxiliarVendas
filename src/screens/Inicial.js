@@ -4,14 +4,16 @@ import AsyncStorage from '@react-native-community/async-storage'
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
 import axios from 'axios'
 import { connect } from 'react-redux'
-import Header from '../components/Header'
-import { setaUser } from '../store/actions/auth'
-import getRealm from '../realm/realm'
 import Icon from 'react-native-vector-icons/FontAwesome'
-import { iniciaSincronismo } from '../services/Functions'
 import BackgroundTimer from 'react-native-background-timer';
 import moment from 'moment'
 import 'moment/src/locale/pt-br'
+
+import Header from '../components/Header'
+import { setaUser } from '../store/actions/auth'
+import getRealm from '../realm/realm'
+import { iniciaSincronismo } from '../services/Functions'
+
 
 BackgroundTimer.runBackgroundTimer(() => { 
     iniciaSincronismo()
@@ -45,7 +47,10 @@ class Inicial extends Component {
         })
     }
 
-    logout = () => {
+    logout = async () => {
+        let realm = (await getRealm())
+        realm.write(() => { realm.deleteAll() })
+
         AsyncStorage.removeItem('userData')
         axios.defaults.headers.common['Authorization'] = null
         this.props.navigation.navigate('AuthOrApp')
@@ -94,9 +99,9 @@ class Inicial extends Component {
                     </TouchableOpacity>
                     
                     <View style={ styles.containerData }>
-                        <Text style={styles.textoData}>Pessoa: { moment(this.state.ultimaAttPessoa, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
-                        <Text style={styles.textoData}>Produto: { moment(this.state.ultimaAttProduto, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
-                        <Text style={styles.textoData}>Pedido: { moment(this.state.ultimaAttPedido, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                        <Text style={styles.textoData}>Pessoa: { this.state.ultimaAttPessoa == null ? '----' : moment(this.state.ultimaAttPessoa, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                        <Text style={styles.textoData}>Produto: { this.state.ultimaAttProduto == null ? '----' : moment(this.state.ultimaAttProduto, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                        <Text style={styles.textoData}>Pedido: { this.state.ultimaAttPedido == null ? '----' : moment(this.state.ultimaAttPedido, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
                     </View>
                 </View>
             </View>

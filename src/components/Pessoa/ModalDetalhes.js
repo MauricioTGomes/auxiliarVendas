@@ -1,7 +1,8 @@
 import React from 'react'
 import { Title, Card } from 'react-native-paper'
-import { StyleSheet, Text, View, TouchableWithoutFeedback, Modal } from 'react-native'
+import { TouchableOpacity, StyleSheet, Text, View, TouchableWithoutFeedback, Modal } from 'react-native'
 import { formatMoney } from '../../components/Functions'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 export default props => {
     const modal = !props.isVisible ? false : (
@@ -11,7 +12,13 @@ export default props => {
             </TouchableWithoutFeedback>
 
             <View style={styles.container}>
-                <Text style={styles.header}>Detalhes cliente</Text>
+                <View style={styles.header}>
+                    <Text style={styles.textoHader}>Detalhes cliente</Text>
+                    
+                    <TouchableOpacity  onPress={props.onCancel}>
+                        <Icon name="close" size={20} color='white'/>
+                    </TouchableOpacity>
+                </View>
 
                 <Card>
                     <Card.Content>
@@ -52,10 +59,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'black'
     },
     header: {
-        backgroundColor: 'blue',
-        color: 'black',
+        backgroundColor: '#504dff',
         textAlign: 'center',
         padding: 15,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    textoHader: {
+        color: 'black',
         fontSize: 18,
     },
     textos: {

@@ -7,8 +7,13 @@ import {
     StyleSheet,
     TouchableWithoutFeedback,
     Modal,
+    ScrollView,
+    TouchableOpacity
 } from 'react-native'
 import { DataTable } from 'react-native-paper';
+import commonStyles from '../../commonStyles'
+import Icon from 'react-native-vector-icons/FontAwesome'
+
 
 const initialState = { nome: '', pessoas: []}
 
@@ -36,35 +41,44 @@ export default class PesquisaPessoa extends Component {
                 </TouchableWithoutFeedback>
 
                 <View style={styles.container}>
-                    <Text style={styles.header}>Pesquisar pessoas</Text>
+                    <View style={ commonStyles.modalPesquisa.header }>
+                        <Text style={ commonStyles.modalPesquisa.textoHader }>Pesquisar clientes</Text>
+                        
+                        <TouchableOpacity  onPress={this.props.onCancel}>
+                            <Icon name="close" size={20} color='white'/>
+                        </TouchableOpacity>
+                    </View>
+
                     <FormInput
                         label="Digite 3 caracteres para buscar."
                         value={this.state.nome}
                         onChangeText={this.setaNome}
                     />
 
-                    <DataTable>
-                        <DataTable.Header>
-                            <DataTable.Title style={{flex: 2}}>Nome / Razao Social</DataTable.Title>
-                            <DataTable.Title style={{flex: 2, justifyContent: 'center'}}>CPF / CNPJ</DataTable.Title>
-                        </DataTable.Header>
+                    <ScrollView>
+                        <DataTable>
+                            <DataTable.Header>
+                                <DataTable.Title style={{flex: 2}}>Nome / Razao Social</DataTable.Title>
+                                <DataTable.Title style={{flex: 2, justifyContent: 'center'}}>CPF / CNPJ</DataTable.Title>
+                            </DataTable.Header>
 
-                        {
-                            this.state.pessoas.map((pessoa, index) => {
-                                return (
-                                    <DataTable.Row onPress={() => this.props.input(pessoa)} key={index}>
-                                        <DataTable.Cell style={{flex: 2}}>
-                                            <View>
-                                                <Text>{pessoa.tipo == 1 ? pessoa.nome : pessoa.fantasia}</Text>
-                                                {pessoa.tipo == 2 ? (<Text>{pessoa.razao_social}</Text>) : false}
-                                            </View>
-                                        </DataTable.Cell>
-                                        <DataTable.Cell style={{flex: 2, justifyContent: 'center'}} numeric>{pessoa.tipo == 1 ? pessoa.cpf : pessoa.cnpj}</DataTable.Cell>
-                                    </DataTable.Row>
-                                )
-                            })
-                        }
-                    </DataTable>
+                            {
+                                this.state.pessoas.map((pessoa, index) => {
+                                    return (
+                                        <DataTable.Row onPress={() => this.props.input(pessoa)} key={index}>
+                                            <DataTable.Cell style={{flex: 2}}>
+                                                <View>
+                                                    <Text>{pessoa.tipo == 1 ? pessoa.nome : pessoa.fantasia}</Text>
+                                                    {pessoa.tipo == 2 ? (<Text>{pessoa.razao_social}</Text>) : false}
+                                                </View>
+                                            </DataTable.Cell>
+                                            <DataTable.Cell style={{flex: 2, justifyContent: 'center'}} numeric>{pessoa.tipo == 1 ? pessoa.cpf : pessoa.cnpj}</DataTable.Cell>
+                                        </DataTable.Row>
+                                    )
+                                })
+                            }
+                        </DataTable>
+                    </ScrollView>
                 </View>
 
                 <TouchableWithoutFeedback onPress={this.props.onCancel}>
@@ -82,13 +96,6 @@ const styles = StyleSheet.create({
     },
     container: {
         backgroundColor: 'white'
-    },
-    header: {
-        backgroundColor: '#005000',
-        color: 'black',
-        textAlign: 'center',
-        padding: 15,
-        fontSize: 18,
     },
     cell: {
         height: 50,

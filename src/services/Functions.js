@@ -21,12 +21,14 @@ const iniciaSincronismo = async () => {
 }
 
 /** INICIO CONTROLA PRODUTO */
+let lastIdProduto = 0
 const baixarProdutos = async () => {
     let realm = await (getRealm())
     let configuracao = realm.objects('Configuracao')[0]
+    
     let dataComecou = moment().locale('pt-br').format('YYYY-MM-DD H:mm:ss')
     let data = configuracao.ultima_sincronizacao_produto ? configuracao.ultima_sincronizacao_produto : null
-    
+        
     try {
         realm.beginTransaction()
         let url = data != null ? `/${data}` : ''
@@ -43,6 +45,7 @@ const baixarProdutos = async () => {
         })
         realm.commitTransaction()
     }catch(e) {
+        console.log("Produto" ,e)
         realm.cancelTransaction()
     }
     
@@ -50,26 +53,24 @@ const baixarProdutos = async () => {
 };
 
 const gravaProduto = (produto, realm) => {
-    let produtoBanco = realm.objects('Produto').filtered(`id_numerama = ${produto.id}`)[0]
-    let lastId = null
-    
-    if (produtoBanco == undefined) {
+    if (lastIdProduto <= 0) {
         const lastProduto = realm.objects('Produto').sorted('id', true)
-        lastId = lastProduto.length > 0 ? lastProduto[0].id : 0                
-        lastId += 1
+        lastIdProduto = lastProduto.length > 0 ? lastProduto[0].id : 0
     }
 
-    let prodCreate = {
-        id: produtoBanco != undefined ? produtoBanco.id : lastId,
+    let produtoBanco = realm.objects('Produto').filtered(`id_numerama = ${produto.id}`)[0]
+    if (produtoBanco == undefined) {              
+        lastIdProduto += 1
+    }
+
+    return realm.create('Produto', {
+        id: produtoBanco != undefined ? produtoBanco.id : lastIdProduto,
         id_numerama: produto.id,
         nome: produto.nome,
         qtd_estoque: parseFloat(produto.qtd_estoque),
         vlr_venda: parseFloat(produto.vlr_venda),
         ativo: parseInt(produto.ativo)
-    }
-
-    let produtoUpdate = realm.create('Produto', prodCreate, 'modified')
-    return produtoUpdate
+    }, 'modified')
 }
 /** FIM CONTROLA PRODUTO */
 
@@ -78,8 +79,12 @@ const baixarPessoas = async () => {
     
     let realm = await (getRealm())
     let configuracao = realm.objects('Configuracao')[0]    
+
     let dataComecou = moment().locale('pt-br').format('YYYY-MM-DD H:mm:ss')
     let data = configuracao.ultima_sincronizacao_pessoa != undefined ? configuracao.ultima_sincronizacao_pessoa : null
+
+    const lastPessoa = realm.objects('Pessoa').sorted('id', true)
+    let lastIdPessoa = lastPessoa.length > 0 ? lastPessoa[0].id : 0     
 
     try {
         realm.beginTransaction()
@@ -90,13 +95,7 @@ const baixarPessoas = async () => {
             if (pessoas.length > 0) {
                 await pessoas.forEach(pessoa => {
                     let pessoaBanco = realm.objects('Pessoa').filtered(`id_numerama = ${pessoa.id}`)[0]
-                    let lastId = null
-                    
-                    if (pessoaBanco == undefined) {
-                        const lastPessoa = realm.objects('Pessoa').sorted('id', true)
-                        lastId = lastPessoa.length > 0 ? lastPessoa[0].id : 0                
-                        lastId += 1
-                    }
+                    if (pessoaBanco == undefined) lastIdPessoa += 1
                     
                     let cidade = null
                     if (pessoa.cidade_id !== null) {
@@ -105,7 +104,7 @@ const baixarPessoas = async () => {
                     
                     let pessoaCreate = {
                         ativo: parseInt(pessoa.ativo),
-                        id: pessoaBanco != undefined ? pessoaBanco.id : lastId,
+                        id: pessoaBanco != undefined ? pessoaBanco.id : lastIdPessoa,
                         id_numerama: pessoa.id,
                         cidade,
                         nome: pessoa.nome,
@@ -142,6 +141,7 @@ const baixarPessoas = async () => {
         configuracao.ultima_sincronizacao_pessoa = dataComecou
         realm.commitTransaction()
     } catch (e) {
+        console.log("Pessoa" ,e)
         realm.cancelTransaction()
     }
 
@@ -189,9 +189,10 @@ const enviaPessoa = async (pessoa, realm) => {
 const baixarPedidos = async () => {
     let realm = await (getRealm())
     let configuracao = realm.objects('Configuracao')[0]
+    
     let dataComecou = moment().locale('pt-br').format('YYYY-MM-DD H:mm:ss')
     let data = configuracao.ultima_sincronizacao_pedido ? configuracao.ultima_sincronizacao_pedido : null
-    
+
     try {
         realm.beginTransaction()
         let url = data != null ? `/${data}` : ''
@@ -199,15 +200,12 @@ const baixarPedidos = async () => {
             let pedidos = response.data.pedidos
             
             if (pedidos.length > 0) {
-                const lastFormaPagamento = realm.objects('Pedido').sorted('id', true)
-                let lastIdForma = lastFormaPagamento.length > 0 ? lastFormaPagamento[0].id : 0
-
+                const lastPedido = realm.objects('Pedido').sorted('id', true)
+                let lastId = lastPedido.length > 0 ? lastPedido[0].id : 0                
+                
                 await pedidos.forEach(pedido => {
-                    let pedidoBanco = realm.objects('Pedido').filtered(`id_numerama = ${pedido.id}`)[0]
-                    
-                    if (pedidoBanco == undefined) {
-                        const lastPedido = realm.objects('Pedido').sorted('id', true)
-                        let lastId = lastPedido.length > 0 ? lastPedido[0].id : 0                
+                    //let pedidoBanco = realm.objects('Pedido').filtered(`id_numerama = ${pedido.id}`)[0]
+                    //if (pedidoBanco == undefined) {
                         lastId += 1
                         
                         let pessoa = null
@@ -218,14 +216,11 @@ const baixarPedidos = async () => {
                         let pagamentos = []
                         if (pedido.pagamentos.length > 0) {
                             pedido.pagamentos.forEach(pag => {
-                                let formaPagamento = realm.objects('FormaPagamento').filtered(`id_numerama = ${pag.forma_pagamento.id}`)[0]
+                                let formaPagamento = realm.objects('FormaPagamento').filtered(`id = ${pag.forma_pagamento.id}`)[0]
                                 
                                 if (formaPagamento == undefined) {
-                                    lastIdForma += 1
-
                                     formaPagamento = realm.create("FormaPagamento", {
-                                        id: lastIdForma, 
-                                        id_numerama: pag.forma_pagamento_id,
+                                        id: pag.forma_pagamento_id,
                                         nome: pag.forma_pagamento.descricao,
                                         tipo: pag.forma_pagamento.tipo
                                     })
@@ -285,7 +280,7 @@ const baixarPedidos = async () => {
                         }
         
                         realm.create('Pedido', pedidoCreate, 'modified')
-                    } 
+                    //}
                 })
             }
         })
@@ -293,9 +288,9 @@ const baixarPedidos = async () => {
         let pedidosLocal = realm.objects('Pedido').filtered(`id_numerama == null`)
         
         if (pedidosLocal.length > 0) {
-            await pedidosLocal.forEach(pessoaLocal => {
-                if (pessoaLocal.id_numerama == null) {
-                    enviaPedido(pessoaLocal, realm)
+            await pedidosLocal.forEach(pedidoLocal => {
+                if (pedidoLocal.id_numerama == null) {
+                    enviaPedido(pedidoLocal, realm)
                 }
             })
         }
@@ -303,6 +298,7 @@ const baixarPedidos = async () => {
         configuracao.ultima_sincronizacao_pedido = dataComecou
         realm.commitTransaction()
     } catch(e) {
+        console.log("Pedido" ,e)
         realm.cancelTransaction()
     }
     return false
@@ -363,7 +359,7 @@ const enviaPedido = async (pedido, realm) => {
             "valor_pago": pag.vlr_total,
             "valor_total_parcelas": null,
             "valor_troco": 0,
-            "primeira_cobranca": "07/11/2020",
+            "primeira_cobranca": null,
             "qtd_parcelas": null,
             "qtd_dias": null,
             "array_parcela": [],
@@ -374,14 +370,15 @@ const enviaPedido = async (pedido, realm) => {
         
         if (pag.forma_pagamento.tipo != 'VISTA') {
             pagamento.valor_total_parcelas = pag.vlr_total
-            pagamento.primeira_cobranca = moment(pag.parcelas[0].data_vencimento + ' 00:00:00', "DD/MM/YYYY H:m:s").locale('pt-br').format('YYYY-MM-DD')
+            pagamento.primeira_cobranca = moment(pag.parcelas[0].data_vencimento).locale('pt-br').format("DD/MM/YYYY")
             pagamento.qtd_parcelas = pag.parcelas.length
             pagamento.qtd_dias = pag.qtd_dias
+            pagamento.conta_bancaria_id = 124
             pag.parcelas.forEach(parcelaFor => {
                 pagamento.array_parcela.push({
                     "nro_parcela": parcelaFor.nro_parcela,
                     "nro_parcela_alteracao": null,
-                    "data_vencimento": moment(parcelaFor.data_vencimento + ' 00:00:00', "DD/MM/YYYY H:m:s").locale('pt-br').format('YYYY-MM-DD'),
+                    "data_vencimento": moment(parcelaFor.data_vencimento).locale('pt-br').format("DD/MM/YYYY"),
                     "valor": parcelaFor.valor_original,
                 })
             })
@@ -393,9 +390,10 @@ const enviaPedido = async (pedido, realm) => {
     await axios.post(`${serve}api/appHibrido/pedido/gravar`, pedidoCriar).then(async response => {
         realm.write(() => {
             pedido.id_numerama = response.data.pedido.id
+            pedido.numero = response.data.pedido.numero
             realm.create('Pedido', pedido, 'modified')
         })
-    }).catch(resp => console.log(resp))
+    }).catch(resp => console.log(resp.response))
 }
 
 export { 

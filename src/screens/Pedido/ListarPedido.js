@@ -48,14 +48,16 @@ class ListarPedido extends Component {
     buscaPedido = async (parametrosBuscar, page = 1) => {
         this.setState({ parametrosBuscar })
         let realm = (await getRealm())
-        
         let pedidos = []
+        
         if (this.state.parametrosBuscar.length >= 3) {
             pedidos = await realm.objects('Pedido')
                         .filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}" AND (pessoa.nome CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.fantasia CONTAINS[c] "${this.state.parametrosBuscar}")`)
-                        .sorted('data_criacao')
+                        .sorted('data_criacao', true)
         } else if(this.state.parametrosBuscar == '') {
-            pedidos = await realm.objects('Pedido').filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}"`)
+            pedidos = await realm.objects('Pedido')
+                        .filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}"`)
+                        .sorted('data_criacao', true)
         }
         
         let totalItens = pedidos.length
@@ -139,7 +141,7 @@ class ListarPedido extends Component {
                                                     <Text>{ pedido.pessoa != null ? pedido.pessoa.nomeRazaoSocial : 'Não informado' }</Text>
                                                     <View style={ styles.textoDataProd }>
                                                         <Text>{ moment(pedido.data_criacao).locale('pt-br').format('DD/MM/YYYY') }</Text>
-                                                        <Text>{ pedido.numero }</Text>
+                                                        <Text>{ pedido.numero !== null ? pedido.numero : '---' }</Text>
                                                         <Text>{ pedido.itens.length }</Text>
                                                         <Text>{ formatMoney(pedido.vlr_liquido) }</Text>
                                                     </View>
@@ -164,7 +166,7 @@ class ListarPedido extends Component {
                         style={ commonStyles.filtrarButton }
                         activeOpacity={0.7}
                     >
-                        <Icon name={ this.state.filtrarEstornados ? 'eye-slash' : 'eye' } size={20} color='white' />
+                        <Icon name={ this.state.filtrarEstornados ? 'eye' : 'eye-slash' } size={20} color='white' />
                     </TouchableOpacity>
 
                     <TouchableOpacity

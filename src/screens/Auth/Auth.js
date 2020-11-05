@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
-import { View, Text, ImageBackground, StyleSheet, TextInput, Alert } from 'react-native'
-import backgroundImage from '../../../assets/image/images.jpg'
+import { TouchableOpacity, Linking, View, Text, ImageBackground, StyleSheet, TextInput, Alert } from 'react-native'
+import backgroundImage from '../../../assets/image/login.jpg'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import {Button} from 'react-native-paper'
 import AsyncStorage from '@react-native-community/async-storage'
@@ -45,24 +45,30 @@ class Auth extends Component {
         let realm  = await (getRealm())
         let configuracao = realm.objects("Configuracao")
         this.setState({ mensagem: "Baixando dados atualizados..." })
+        
         try {
             if (configuracao.length <= 0) {
                 realm.beginTransaction()
                 realm.create("Configuracao", {id: 1})
                 
+                this.setState({ mensagem: "Atualizando cidades..." })
                 await cidades.forEach(cidade => { realm.create('Cidade', cidade) })
+                this.setState({ mensagem: "Atualizando formas de pagamentos..." })
                 await axios.get(`https://app.numerama.com.br/api/appHibrido/getFormas`).then(async resp => {
                     resp.data.data.forEach(forma => {
                         realm.create('FormaPagamento', {nome: forma.descricao, tipo: forma.tipo, id: forma.id})
                     })
                 })
                 realm.commitTransaction() 
-
             }
             
+            this.setState({ mensagem: "Atualizando pessoas..." })
             await baixarPessoas()
+            this.setState({ mensagem: "Atualizando produtos..." })
             await baixarProdutos()
+            this.setState({ mensagem: "Atualizando pedidos..." })
             await baixarPedidos()
+            this.setState({ mensagem: "Estamos terminando..." })
 
             this.setState({ loader: false })
             this.props.navigation.navigate('Home')
@@ -81,9 +87,7 @@ class Auth extends Component {
         const validForm = validations.reduce((t, a) => t && a)
 
         return (
-            //<ImageBackground style={styles.backgroud} source={ backgroundImage }>
-            //</ImageBackground> 
-            <View style={styles.backgroud}>
+            <ImageBackground style={styles.backgroud} source={ backgroundImage }>
                 <OrientationLoadingOverlay visible={this.state.loader} color="white" indicatorSize="large" messageFontSize={24} message={this.state.mensagem}/>
 
                 <Text style={styles.title}>Pedidos</Text>
@@ -107,6 +111,10 @@ class Auth extends Component {
                         />
                     </View>
 
+                    <TouchableOpacity style={ styles.buttonEsqueceuSenha } onPress={() => Linking.openURL('https://app.numerama.com.br/password/reset')}>
+                        <Text style={ styles.textButtonSenha }>Esqueceu a senha?</Text>
+                    </TouchableOpacity>
+
                     <Button 
                         style={styles.button} mode="contained"
                         color='green' onPress={() => this.signin()} 
@@ -115,18 +123,26 @@ class Auth extends Component {
                         Entrar
                     </Button>
                 </View>
-            </View>
+            </ImageBackground>
         )
     }
 }
 
 const styles = StyleSheet.create({
+    buttonEsqueceuSenha: {
+        marginTop: 10,
+        marginBottom: 10,
+        alignItems: 'flex-end'
+    },
+    textButtonSenha: {
+        fontSize: 20,
+        color: 'green'
+    },
     backgroud: {
         flex: 1,
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.8)'
     },
     title: {
         color: 'black',
@@ -144,10 +160,8 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#080',
-        width: 120,
         marginTop: 10,
         padding: 10,
-        marginLeft: 100,
         borderRadius: 7
     },
     buttonText: {

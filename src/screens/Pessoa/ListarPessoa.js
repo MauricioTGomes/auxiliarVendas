@@ -48,10 +48,14 @@ class ListarPessoa extends Component {
         let pessoas = []
         if (this.state.parametrosBuscar.length >= 3) {
             this.setState({ loader: true })
-            pessoas = await realm.objects('Pessoa').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}" AND (razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR fantasia CONTAINS[c] "${this.state.parametrosBuscar}" OR nome CONTAINS[c] "${this.state.parametrosBuscar}" OR cpf CONTAINS[c] "${this.state.parametrosBuscar}" OR cnpj CONTAINS[c] "${this.state.parametrosBuscar}")`)
+            pessoas = await realm.objects('Pessoa')
+                        .filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}" AND (razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR fantasia CONTAINS[c] "${this.state.parametrosBuscar}" OR nome CONTAINS[c] "${this.state.parametrosBuscar}" OR cpf CONTAINS[c] "${this.state.parametrosBuscar}" OR cnpj CONTAINS[c] "${this.state.parametrosBuscar}")`)
+                        .sorted('nome', false).sorted('razao_social', false)
         } else if (this.state.parametrosBuscar == '') {
             this.setState({ loader: true })
-            pessoas = await realm.objects('Pessoa').filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}"`)
+            pessoas = await realm.objects('Pessoa')
+                        .filtered(`ativo = "${(this.state.filtrarAtivos ? 1 : 0)}"`)
+                        .sorted('nome', false).sorted('razao_social', false)
         }
 
         if (this.state.parametrosBuscar.length >= 3 || this.state.parametrosBuscar == '') {
@@ -161,7 +165,7 @@ class ListarPessoa extends Component {
                         style={ commonStyles.filtrarButton }
                         activeOpacity={0.7}
                     >
-                        <Icon name={ this.state.filtrarAtivos ? 'eye' : 'eye-slash' } size={20} color='white' />
+                        <Icon name={ this.state.filtrarAtivos ? 'eye-slash' : 'eye' } size={20} color='white' />
                     </TouchableOpacity>
 
                     <TouchableOpacity
