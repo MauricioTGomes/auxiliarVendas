@@ -31,7 +31,8 @@ export default {
         justifyContent: 'flex-end'
     },
     containerLinha: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginBottom: 10
     },
     containerInput: {
         width: '47%'
@@ -69,6 +70,23 @@ export default {
         backgroundColor: 'blue'
     },
     datatables: {
+        faturamentoPrazo: {
+            containerDatatable: {
+                flex: 4
+            },
+            colunaUm: {
+                flex: 1,
+                justifyContent: 'flex-start'
+            },
+            colunaDois: {
+                flex: 2,
+                justifyContent: 'center'
+            },
+            colunaTres: {
+                flex: 1,
+                justifyContent: 'flex-end'
+            },
+        },
         datatableHeader: {
             padding: 5,
             height: 50,
@@ -79,11 +97,11 @@ export default {
                 flex: 5
             },
             colunaUm: {
-                flex: 3,
+                flex: 2,
                 justifyContent: 'flex-start'
             },
             colunaDois: {
-                flex: 1,
+                flex: 2,
                 justifyContent: 'flex-start'
             },
             colunaTres: {

@@ -301,20 +301,20 @@ class FormFormasPagamento extends Component {
                         <Card.Content>
                             <ScrollView>
                                 <DataTable>
-                                    <DataTable.Header>
-                                        <DataTable.Title>Nro</DataTable.Title>
-                                        <DataTable.Title>Vencimento</DataTable.Title>
-                                        <DataTable.Title>Valor (R$)</DataTable.Title>
+                                    <DataTable.Header style={ commonStyles.datatables.faturamentoPrazo.containerDatatable }>
+                                        <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaUm }>Nro</DataTable.Title>
+                                        <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaDois }>Vencimento</DataTable.Title>
+                                        <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaTres }>Valor (R$)</DataTable.Title>
                                     </DataTable.Header>
 
                                     {
                                         this.state.forma.array_parcelas != undefined ? 
                                         this.state.forma.array_parcelas.map((parcela, index) => {
                                             return (
-                                                <DataTable.Row underlayColor='blue' rippleColor='red' key={index}>
-                                                    <DataTable.Cell>{ parcela.nro_parcela }</DataTable.Cell>
-                                                    <DataTable.Cell>{ parcela.data_vencimento_formatada }</DataTable.Cell>
-                                                    <DataTable.Cell>{ parcela.valor_original }</DataTable.Cell>
+                                                <DataTable.Row underlayColor='blue' rippleColor='red' key={index} style={ commonStyles.datatables.faturamentoPrazo.containerDatatable }>
+                                                    <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaUm }>{ parcela.nro_parcela }</DataTable.Cell>
+                                                    <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaDois }>{ parcela.data_vencimento_formatada }</DataTable.Cell>
+                                                    <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaTres }>{ parcela.valor_original }</DataTable.Cell>
                                                 </DataTable.Row>
                                             )
                                         }) :
@@ -430,7 +430,7 @@ class FormFormasPagamento extends Component {
                                 </Card.Content>
                             </Card>
 
-                            <View style={ styles.containerParcelas }>
+                            <View style={ styles.containerFormas }>
                                 <Card>
                                     <Card.Title title="Formas cadastradas" titleStyle={styles.textTitleCard}/>
                                     
@@ -471,7 +471,7 @@ class FormFormasPagamento extends Component {
                                 onPress={() => this.salvarPedido()}
                                 style={ styles.button }
                             >
-                                Gravar pedido
+                                Gravar pedido   <Icon name='check' size={20} color='white' /> 
                             </Button>
                         </Card.Content>
                     </Card>
@@ -493,10 +493,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         height: 50,
-        marginLeft: 25,
         marginTop: 20
     },
     containerParcelas: {
+        width: '100%',
+        maxHeight: Dimensions.get('window').height / 2,
+    },
+    containerFormas: {
+        marginTop: 10,
         width: '100%',
         maxHeight: Dimensions.get('window').height / 2,
     },

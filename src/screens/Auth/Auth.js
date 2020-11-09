@@ -13,8 +13,8 @@ import { baixarPedidos, baixarProdutos, baixarPessoas } from '../../services/Fun
 
 const initialState = {
     name: 'Mauricio Gomes',
-    email: 'mauricio@numerama.com.br',
-    password: 'M@u96218195',
+    email: '',
+    password: '',
     loader: false,
     mensagem: "Entrando..."
 }
@@ -29,10 +29,15 @@ class Auth extends Component {
             email: this.state.email,
             password: this.state.password,
         }).then(async resp => {
-            axios.defaults.headers.common['Authorization'] = `bearer ${resp.data.token}`            
-            userData.token = resp.data.token
-            AsyncStorage.setItem('userData',  JSON.stringify(userData))
-            this.verificaPrimeiroLogin()
+            if (resp.data.token == null || resp.data.token == undefined) {
+                this.setState({ loader: false })
+                Alert.alert('Atenção!', "Erro ao acessar aplicativo.")
+            } else {
+                axios.defaults.headers.common['Authorization'] = `bearer ${resp.data.token}`            
+                userData.token = resp.data.token
+                AsyncStorage.setItem('userData',  JSON.stringify(userData))
+                this.verificaPrimeiroLogin()
+            }
         }).catch(resp => {
             this.setState({ loader: false })
             if (resp.response.data.error != undefined) {

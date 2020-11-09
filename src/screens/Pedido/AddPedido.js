@@ -233,7 +233,8 @@ class AddPedido extends Component {
 const styles = StyleSheet.create({
     containerLinhaAddButton: {
         flexDirection: 'row',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginBottom: 10
     },
     containerNome: {
         backgroundColor: 'rgba(0,0,255,0.6)',
@@ -249,6 +250,7 @@ const styles = StyleSheet.create({
     containerItens: {
         width: '100%',
         maxHeight: Dimensions.get('window').height / 2,
+        marginBottom: 10
     },
     textTitleCard: {
         fontSize: 15,
