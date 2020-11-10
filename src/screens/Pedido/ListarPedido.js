@@ -53,11 +53,11 @@ class ListarPedido extends Component {
         if (this.state.parametrosBuscar.length >= 3) {
             pedidos = await realm.objects('Pedido')
                         .filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}" AND (pessoa.nome CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.razao_social CONTAINS[c] "${this.state.parametrosBuscar}" OR pessoa.fantasia CONTAINS[c] "${this.state.parametrosBuscar}")`)
-                        .sorted('data_criacao', true)
+                        .sorted('numero', true)
         } else if(this.state.parametrosBuscar == '') {
             pedidos = await realm.objects('Pedido')
                         .filtered(`estornado = "${(this.state.filtrarEstornados ? 1 : 0)}"`)
-                        .sorted('data_criacao', true)
+                        .sorted('numero', true)
         }
         
         let totalItens = pedidos.length
@@ -93,6 +93,10 @@ class ListarPedido extends Component {
     abreModalDetalhes = async pedidoId => {
         let pedido = (await getRealm()).objects('Pedido').filtered(`id = "${pedidoId}"`)[0]
         this.setState({ detalhes: { pedido, isVisible: true } })
+    }
+
+    componentDidUpdate() {
+        console.log("Entrou")
     }
 
     render() {

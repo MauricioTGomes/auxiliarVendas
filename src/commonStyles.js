@@ -42,10 +42,18 @@ export default {
     },
     swipeable: {
         flexDirection: 'row',
+        borderRadius: 5,
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        height: 65
+    },
+    swipeableItem: {
+        flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 5,
         justifyContent: 'flex-end',
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
+        height: 45
     },
     addButton: {
         position: 'absolute',
@@ -102,7 +110,7 @@ export default {
             },
             colunaDois: {
                 flex: 2,
-                justifyContent: 'flex-start'
+                justifyContent: 'center'
             },
             colunaTres: {
                 flex: 1,

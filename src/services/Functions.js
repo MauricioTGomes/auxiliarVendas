@@ -116,7 +116,7 @@ const baixarPessoas = async () => {
                         bairro: pessoa.bairro,
                         cep: pessoa.cep,
                         endereco: pessoa.endereco,
-                        endereco_nro: pessoa.endereco_nro.toString(),
+                        endereco_nro: pessoa.endereco_nro != undefined && pessoa.endereco_nro != null ? pessoa.endereco_nro.toString() : '',
                         limite_credito: parseFloat(pessoa.limite_credito),
                         tipo: parseInt(pessoa.tipo),
                         saldo_atrasado: parseFloat(pessoa.saldos.total_atrasado),
@@ -204,83 +204,80 @@ const baixarPedidos = async () => {
                 let lastId = lastPedido.length > 0 ? lastPedido[0].id : 0                
                 
                 await pedidos.forEach(pedido => {
-                    //let pedidoBanco = realm.objects('Pedido').filtered(`id_numerama = ${pedido.id}`)[0]
-                    //if (pedidoBanco == undefined) {
-                        lastId += 1
-                        
-                        let pessoa = null
-                        if (pedido.pessoa_id != null) {
-                            pessoa = realm.objects('Pessoa').filtered(`id_numerama = ${pedido.pessoa_id}`)[0]
-                        }
+                    lastId += 1
+                    
+                    let pessoa = null
+                    if (pedido.pessoa_id != null) {
+                        pessoa = realm.objects('Pessoa').filtered(`id_numerama = ${pedido.pessoa_id}`)[0]
+                    }
 
-                        let pagamentos = []
-                        if (pedido.pagamentos.length > 0) {
-                            pedido.pagamentos.forEach(pag => {
-                                let formaPagamento = realm.objects('FormaPagamento').filtered(`id = ${pag.forma_pagamento.id}`)[0]
-                                
-                                if (formaPagamento == undefined) {
-                                    formaPagamento = realm.create("FormaPagamento", {
-                                        id: pag.forma_pagamento_id,
-                                        nome: pag.forma_pagamento.descricao,
-                                        tipo: pag.forma_pagamento.tipo
-                                    })
-                                }
-                                
-                                let pagamento = {
-                                    forma_pagamento: formaPagamento,
-                                    parcelas: [],
-                                    vlr_total: parseFloat(pag.valor_pago),
-                                    vlr_restante: parseFloat(pag.valor_pago),
-                                    qtd_dias: 0
-                                }
-
-                                if (pag.conta != null) {
-                                    pagamento.vlr_restante = parseFloat(pag.conta.vlr_restante)
-                                    pagamento.qtd_dias = parseInt(pag.conta.qtd_dias)
-
-                                    pag.conta.parcelas.forEach(parcela => {
-                                        pagamento.parcelas.push({
-                                            nro_parcela: parseInt(parcela.nro_parcela),
-                                            data_vencimento: moment(parcela.data_vencimento + ' 00:00:00', "DD/MM/YYYY H:m:s").locale('pt-br').format('YYYY-MM-DD'),
-                                            valor_original: parseFloat(parcela.valor),
-                                        })
-                                    })
-                                }
-
-                                pagamentos.push(pagamento)
-                            })
-                        }
-                        
-                        let itens = []
-                        if (pedido.itens.length > 0) {
-                            pedido.itens.forEach(item => {
-                                let produto = gravaProduto(item.produto, realm)
-                                itens.push({
-                                    produto,
-                                    quantidade: parseFloat(item.quantidade),
-                                    vlr_unitario: parseFloat(item.vlr_unitario),
-                                    vlr_desconto: parseFloat(item.vlr_desconto),
-                                    vlr_total: parseFloat(item.vlr_total),
+                    let pagamentos = []
+                    if (pedido.pagamentos.length > 0) {
+                        pedido.pagamentos.forEach(pag => {
+                            let formaPagamento = realm.objects('FormaPagamento').filtered(`id = ${pag.forma_pagamento.id}`)[0]
+                            
+                            if (formaPagamento == undefined) {
+                                formaPagamento = realm.create("FormaPagamento", {
+                                    id: pag.forma_pagamento_id,
+                                    nome: pag.forma_pagamento.descricao,
+                                    tipo: pag.forma_pagamento.tipo
                                 })
-                            })
-                        }
+                            }
+                            
+                            let pagamento = {
+                                forma_pagamento: formaPagamento,
+                                parcelas: [],
+                                vlr_total: parseFloat(pag.valor_pago),
+                                vlr_restante: parseFloat(pag.valor_pago),
+                                qtd_dias: 0
+                            }
 
-                        let pedidoCreate = {
-                            id: lastId,
-                            id_numerama: pedido.id,
-                            pessoa,
-                            itens,
-                            pagamentos,
-                            numero: pedido.numero,
-                            vlr_liquido: parseFloat(pedido.vlr_liquido),
-                            vlr_bruto: parseFloat(pedido.vlr_bruto),
-                            vlr_desconto: parseFloat(pedido.vlr_desconto),
-                            estornado: parseInt(pedido.estornado),
-                            data_criacao: moment(pedido.created_at, "DD/MM/YYYY H:m:s").locale('pt-br').format('YYYY-MM-DD')
-                        }
-        
-                        realm.create('Pedido', pedidoCreate, 'modified')
-                    //}
+                            if (pag.conta != null) {
+                                pagamento.vlr_restante = parseFloat(pag.conta.vlr_restante)
+                                pagamento.qtd_dias = parseInt(pag.conta.qtd_dias)
+
+                                pag.conta.parcelas.forEach(parcela => {
+                                    pagamento.parcelas.push({
+                                        nro_parcela: parseInt(parcela.nro_parcela),
+                                        data_vencimento: moment(parcela.data_vencimento + ' 00:00:00', "DD/MM/YYYY H:m:s").locale('pt-br').format('YYYY-MM-DD'),
+                                        valor_original: parseFloat(parcela.valor),
+                                    })
+                                })
+                            }
+
+                            pagamentos.push(pagamento)
+                        })
+                    }
+                    
+                    let itens = []
+                    if (pedido.itens.length > 0) {
+                        pedido.itens.forEach(item => {
+                            let produto = gravaProduto(item.produto, realm)
+                            itens.push({
+                                produto,
+                                quantidade: parseFloat(item.quantidade),
+                                vlr_unitario: parseFloat(item.vlr_unitario),
+                                vlr_desconto: parseFloat(item.vlr_desconto),
+                                vlr_total: parseFloat(item.vlr_total),
+                            })
+                        })
+                    }
+
+                    let pedidoCreate = {
+                        id: lastId,
+                        id_numerama: pedido.id,
+                        pessoa,
+                        itens,
+                        pagamentos,
+                        numero: pedido.numero,
+                        vlr_liquido: pedido.vlr_liquido != null ? parseFloat(pedido.vlr_liquido) : 0.00,
+                        vlr_bruto: pedido.vlr_bruto != null ? parseFloat(pedido.vlr_bruto) : 0.00,
+                        vlr_desconto: pedido.vlr_desconto != null ? parseFloat(pedido.vlr_desconto) : 0.00,
+                        estornado: parseInt(pedido.estornado),
+                        data_criacao: moment(pedido.created_at, "DD/MM/YYYY H:m:s").locale('pt-br').format('YYYY-MM-DD')
+                    }
+    
+                    realm.create('Pedido', pedidoCreate, 'modified')
                 })
             }
         })
@@ -298,7 +295,7 @@ const baixarPedidos = async () => {
         configuracao.ultima_sincronizacao_pedido = dataComecou
         realm.commitTransaction()
     } catch(e) {
-        console.log("Pedido" ,e)
+        console.log("Pedido" , e)
         realm.cancelTransaction()
     }
     return false

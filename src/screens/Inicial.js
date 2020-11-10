@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native'
+import { Card } from 'react-native-paper'
 import AsyncStorage from '@react-native-community/async-storage'
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
 import axios from 'axios'
@@ -15,9 +16,7 @@ import getRealm from '../realm/realm'
 import { iniciaSincronismo } from '../services/Functions'
 
 
-BackgroundTimer.runBackgroundTimer(() => { 
-    iniciaSincronismo()
-}, 900000);// 3600000
+BackgroundTimer.runBackgroundTimer(() => { iniciaSincronismo() }, 300000);// 3600000
 
 class Inicial extends Component {
     state = {
@@ -29,9 +28,12 @@ class Inicial extends Component {
     
     async componentDidMount() {
         const self = this
-        setTimeout(function () {
-            self.getDadosTela()
-        }, 200)
+        setTimeout(function () { self.getDadosTela() }, 200)
+    }
+
+    componentDidUpdate() {
+        const self = this
+        setTimeout(function () { self.getDadosTela() }, 200)
     }
 
     getDadosTela = async () => {
@@ -39,17 +41,23 @@ class Inicial extends Component {
         let userData = JSON.parse(userDataJson)
         this.props.setaUser(userData)
 
-        let configuracao = (await getRealm()).objects('Configuracao')[0]
+        let realm = (await getRealm())
+        let configuracao = realm.objects('Configuracao')[0]
+        let pessoas = realm.objects('Pessoa').filtered(`id_numerama == null`)
+        let pedidos = realm.objects('Pedido').filtered(`id_numerama == null`)
+
         this.setState({
             ultimaAttPedido: configuracao.ultima_sincronizacao_pedido,
             ultimaAttPessoa: configuracao.ultima_sincronizacao_pessoa,
             ultimaAttProduto: configuracao.ultima_sincronizacao_produto,
+            qtdPendentePessoas: pessoas.length,
+            qtdPendentePedidos: pedidos.length,
         })
     }
 
     logout = async () => {
-        let realm = (await getRealm())
-        realm.write(() => { realm.deleteAll() })
+        //let realm = (await getRealm())
+        //realm.write(() => { realm.deleteAll() })
 
         AsyncStorage.removeItem('userData')
         axios.defaults.headers.common['Authorization'] = null
@@ -88,22 +96,36 @@ class Inicial extends Component {
                     </TouchableOpacity>
                 </View>
 
-                <View style={styles.container}>
-                    <Text style={styles.textoUltimaAtt}>Atualizações</Text>
-
-                    <TouchableOpacity style={ styles.botaoSync } onPress={() => this.sincronizar()}>
-                        <View style={ styles.containerBotao }>
-                            <Text style={styles.botaoTexto}>Atualizar dados</Text>
-                            <Icon name='refresh' size={30} color='white' />
-                        </View>
-                    </TouchableOpacity>
+                <Card>
+                    <Card.Title title="Atualizações" titleStyle={styles.textoUltimaAtt}/>
                     
-                    <View style={ styles.containerData }>
-                        <Text style={styles.textoData}>Pessoa: { this.state.ultimaAttPessoa == null ? '----' : moment(this.state.ultimaAttPessoa, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
-                        <Text style={styles.textoData}>Produto: { this.state.ultimaAttProduto == null ? '----' : moment(this.state.ultimaAttProduto, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
-                        <Text style={styles.textoData}>Pedido: { this.state.ultimaAttPedido == null ? '----' : moment(this.state.ultimaAttPedido, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
-                    </View>
-                </View>
+                    <Card.Content>
+                        <TouchableOpacity style={ styles.botaoSync } onPress={() => this.sincronizar()}>
+                            <View style={ styles.containerBotao }>
+                                <Text style={styles.botaoTexto}>Atualizar dados</Text>
+                                <Icon name='refresh' size={30} color='white' />
+                            </View>
+                        </TouchableOpacity>
+                        
+                        <View style={ styles.containerData }>
+                            <Text style={styles.textoData}>Pessoa: { this.state.ultimaAttPessoa == null ? '----' : moment(this.state.ultimaAttPessoa, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                            <Text style={styles.textoData}>Produto: { this.state.ultimaAttProduto == null ? '----' : moment(this.state.ultimaAttProduto, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                            <Text style={styles.textoData}>Pedido: { this.state.ultimaAttPedido == null ? '----' : moment(this.state.ultimaAttPedido, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                        </View>
+
+                        <Card>
+                            <Card.Title title="Dados pendentes" titleStyle={styles.textoUltimaAtt}/>
+                            
+                            <Card.Content>
+                                <View style={ styles.containerData }>
+                                    <Text style={styles.textoData}>Pessoa (s): { this.state.qtdPendentePessoas }</Text>
+                                    <Text style={styles.textoData}>Pedido (s): { this.state.qtdPendentePedidos }</Text>
+                                </View>
+                            </Card.Content>
+                        </Card>
+
+                    </Card.Content>
+                </Card>
             </View>
         )
     }

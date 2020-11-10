@@ -4,7 +4,6 @@ import {
     StyleSheet,
     Alert,
     ScrollView, 
-    Dimensions,
     TouchableOpacity
 } from 'react-native'
 import Swipeable from 'react-native-gesture-handler/Swipeable'
@@ -41,13 +40,13 @@ class FormFormasPagamento extends Component {
 
     removeFormaPagamento = index => {
         this.props.removeForma(index)
-        this.calcularValorRestante()
+        this.calculaValorTotal()
     }
 
     getRightContent = (index) => {
         return (
             <TouchableOpacity style={ [commonStyles.swipeable, {backgroundColor: 'red'}] } onPress={() => this.removeFormaPagamento(index)}>
-                <Icon name='trash' size={30} color='white' />
+                <Icon name='trash' size={25} color='white' />
             </TouchableOpacity>
         )
     }
@@ -123,13 +122,13 @@ class FormFormasPagamento extends Component {
         let dataBase = moment(this.state.forma.primeira_cobranca).locale('pt-br')
         let valorTotal = formatForCalc(this.state.forma.vlr_total)
         let valorParcela = (valorTotal / this.state.forma.nro_parcelas).toFixed(2)
-        let parcelas = new Array(this.state.forma.nro_parcelas).fill({
+        let parcelas = new Array(parseInt(this.state.forma.nro_parcelas)).fill({
                 nro_parcela: 1,
                 valor_original: formatMoney(valorParcela),
                 data_vencimento: dataBase.clone().format('YYYY-MM-DD'),
                 data_vencimento_formatada: dataBase.clone().format('D[/]MM[/]YYYY')
             })
-        
+            
         parcelas.forEach((_, index) => {
             if (index + 1 === parcelas.length) valorParcela = valorTotal.toFixed(2)
             valorTotal -= valorParcela
@@ -165,6 +164,7 @@ class FormFormasPagamento extends Component {
             if (this.props.pedido.descontoAplicadoProduto) {
                 faturamento.vlr_desconto = '0,00'
             } else {
+                console.log(vlrDescontoFormatado)
                 faturamento.vlr_liquido = formatForCalc(this.state.faturamento.vlr_bruto) - vlrDescontoFormatado
                 
                 if (faturamento.vlr_liquido < 0) {
@@ -299,34 +299,32 @@ class FormFormasPagamento extends Component {
                         <Card.Title title="Parcelas" titleStyle={styles.textTitleCard}/>
                         
                         <Card.Content>
-                            <ScrollView>
-                                <DataTable>
-                                    <DataTable.Header style={ commonStyles.datatables.faturamentoPrazo.containerDatatable }>
-                                        <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaUm }>Nro</DataTable.Title>
-                                        <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaDois }>Vencimento</DataTable.Title>
-                                        <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaTres }>Valor (R$)</DataTable.Title>
-                                    </DataTable.Header>
+                            <DataTable>
+                                <DataTable.Header style={ commonStyles.datatables.faturamentoPrazo.containerDatatable }>
+                                    <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaUm }>Nro</DataTable.Title>
+                                    <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaDois }>Vencimento</DataTable.Title>
+                                    <DataTable.Title style={ commonStyles.datatables.faturamentoPrazo.colunaTres }>Valor (R$)</DataTable.Title>
+                                </DataTable.Header>
 
-                                    {
-                                        this.state.forma.array_parcelas != undefined ? 
-                                        this.state.forma.array_parcelas.map((parcela, index) => {
-                                            return (
-                                                <DataTable.Row underlayColor='blue' rippleColor='red' key={index} style={ commonStyles.datatables.faturamentoPrazo.containerDatatable }>
-                                                    <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaUm }>{ parcela.nro_parcela }</DataTable.Cell>
-                                                    <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaDois }>{ parcela.data_vencimento_formatada }</DataTable.Cell>
-                                                    <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaTres }>{ parcela.valor_original }</DataTable.Cell>
-                                                </DataTable.Row>
-                                            )
-                                        }) :
-                                        false
-                                    }
-                                </DataTable>
-                            </ScrollView>
+                                {
+                                    this.state.forma.array_parcelas != undefined ? 
+                                    this.state.forma.array_parcelas.map((parcela, index) => {
+                                        return (
+                                            <DataTable.Row underlayColor='blue' rippleColor='red' key={index} style={ commonStyles.datatables.faturamentoPrazo.containerDatatable }>
+                                                <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaUm }>{ parcela.nro_parcela }</DataTable.Cell>
+                                                <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaDois }>{ parcela.data_vencimento_formatada }</DataTable.Cell>
+                                                <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaTres }>{ parcela.valor_original }</DataTable.Cell>
+                                            </DataTable.Row>
+                                        )
+                                    }) :
+                                    false
+                                }
+                            </DataTable>
                         </Card.Content>
                     </Card>
                 </View>
 
-                <Button disabled={ this.state.forma.array_parcelas === undefined || this.state.forma.array_parcelas.length <= 0 } mode="contained" color="green" onPress={() => this.addForma()} > 
+                <Button style={ styles.btnAddFormaPrazo } disabled={ this.state.forma.array_parcelas === undefined || this.state.forma.array_parcelas.length <= 0 } mode="contained" color="green" onPress={() => this.addForma()} > 
                     Adicionar forma  <Icon name='plus' size={25} color='white'/>
                 </Button>
             </>
@@ -466,7 +464,7 @@ class FormFormasPagamento extends Component {
                             </View>
 
                             <Button
-                                disabled={ this.props.pedido.formasPagamento.length <= 0 || this.state.faturamento.vlr_restante > 0 } 
+                                disabled={ this.props.pedido.formasPagamento.length <= 0 || formatForCalc(this.state.faturamento.vlr_restante) > 0 } 
                                 mode="contained" color="green"
                                 onPress={() => this.salvarPedido()}
                                 style={ styles.button }
@@ -496,14 +494,16 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     containerParcelas: {
-        width: '100%',
-        maxHeight: Dimensions.get('window').height / 2,
+        width: '100%'
     },
     containerFormas: {
         marginTop: 10,
         width: '100%',
-        maxHeight: Dimensions.get('window').height / 2,
+
     },
+    btnAddFormaPrazo: {
+        marginTop: 10
+    }
 })
 
 const mapStateToProps = (state) => {

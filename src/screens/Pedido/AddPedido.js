@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
 import {connect} from 'react-redux'
 import { TextInputMask } from 'react-native-masked-text'
-import {Button, DataTable, Card } from 'react-native-paper'
+import { Button, DataTable, Card } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import Swipeable from 'react-native-gesture-handler/Swipeable'
 
@@ -72,7 +72,7 @@ class AddPedido extends Component {
 
     getRightContent = (index) => {
         return (
-            <TouchableOpacity style={ [commonStyles.swipeable, {backgroundColor: 'green'}] } onPress={() => this.editarItem(index)}>
+            <TouchableOpacity style={ [commonStyles.swipeableItem, {backgroundColor: 'green'}] } onPress={() => this.editarItem(index)}>
                 <Icon name='pencil' size={30} color='white' />
             </TouchableOpacity>
         )
@@ -85,7 +85,7 @@ class AddPedido extends Component {
 
     getLeftContent = (index) => {
         return (
-            <TouchableOpacity style={ [commonStyles.swipeable, {backgroundColor: 'red'}] } onPress={() => this.deletarItem(index)}>
+            <TouchableOpacity style={ [commonStyles.swipeableItem, {backgroundColor: 'red'}] } onPress={() => this.deletarItem(index)}>
                 <Icon name='trash' size={30} color='white' />
             </TouchableOpacity>
         )
