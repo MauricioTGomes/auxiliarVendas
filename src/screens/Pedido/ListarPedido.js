@@ -15,7 +15,7 @@ import PesquisaPessoa from '../../components/Pessoa/PesquisaPessoa'
 import { formatMoney } from '../../components/Functions'
 
 class ListarPedido extends Component {
-    state = {
+  state = {
         pedidos: [],
         parametrosBuscar: '',
         filtrarEstornados: false,
@@ -93,10 +93,6 @@ class ListarPedido extends Component {
     abreModalDetalhes = async pedidoId => {
         let pedido = (await getRealm()).objects('Pedido').filtered(`id = "${pedidoId}"`)[0]
         this.setState({ detalhes: { pedido, isVisible: true } })
-    }
-
-    componentDidUpdate() {
-        console.log("Entrou")
     }
 
     render() {
