@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
     containerItens: {
-        width: '100%',
+        width: '90%',
         maxHeight: Dimensions.get('window').height / 2,
         marginBottom: 10
     },

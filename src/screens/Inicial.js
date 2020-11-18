@@ -16,7 +16,10 @@ import getRealm from '../realm/realm'
 import { iniciaSincronismo } from '../services/Functions'
 
 
-BackgroundTimer.runBackgroundTimer(() => { iniciaSincronismo() }, 300000);// 3600000
+BackgroundTimer.runBackgroundTimer(() => { 
+    iniciaSincronismo()
+    console.log("Comecou")
+}, 30000);// 3600000
 
 class Inicial extends Component {
     state = {
@@ -31,9 +34,8 @@ class Inicial extends Component {
         setTimeout(function () { self.getDadosTela() }, 200)
     }
 
-    componentDidUpdate() {
-        const self = this
-        setTimeout(function () { self.getDadosTela() }, 200)
+    componentWillUnmount() {
+        BackgroundTimer.stopBackgroundTimer()
     }
 
     getDadosTela = async () => {
@@ -56,8 +58,8 @@ class Inicial extends Component {
     }
 
     logout = async () => {
-        //let realm = (await getRealm())
-        //realm.write(() => { realm.deleteAll() })
+        let realm = (await getRealm())
+        realm.write(() => { realm.deleteAll() })
 
         AsyncStorage.removeItem('userData')
         axios.defaults.headers.common['Authorization'] = null

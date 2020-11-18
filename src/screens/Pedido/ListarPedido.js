@@ -140,7 +140,7 @@ class ListarPedido extends Component {
                                                 <View style={ styles.viewRow }>
                                                     <Text>{ pedido.pessoa != null ? pedido.pessoa.nomeRazaoSocial : 'Não informado' }</Text>
                                                     <View style={ styles.textoDataProd }>
-                                                        <Text>{ moment(pedido.data_criacao).locale('pt-br').format('DD/MM/YYYY') }</Text>
+                                                        <Text>{ moment(pedido.data_criacao, "YYYY-MM-DD").format('DD/MM/YYYY') }</Text>
                                                         <Text>{ pedido.numero !== null ? pedido.numero : '---' }</Text>
                                                         <Text>{ pedido.itens.length }</Text>
                                                         <Text>{ formatMoney(pedido.vlr_liquido) }</Text>

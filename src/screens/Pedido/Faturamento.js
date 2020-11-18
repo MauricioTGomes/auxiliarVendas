@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import { TextInputMask } from 'react-native-masked-text'
 import { Button, Card, DataTable } from 'react-native-paper'
 import { connect } from 'react-redux'
+import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
 
 import NetInfo from "@react-native-community/netinfo";
 import { enviaPedido } from '../../services/Functions'
@@ -29,6 +30,7 @@ const formaInicial = {vlr_total: '0,00', array_parcelas: [], qtd_dias: '', nro_p
 
 class FormFormasPagamento extends Component {
     state = {
+        loader: false,
         forma: {...formaInicial},
         faturamento: {
             vlr_bruto: '0,00',
@@ -52,6 +54,7 @@ class FormFormasPagamento extends Component {
     }
 
     salvarPedido = async () => {
+        this.setState({ loader: true })
         let realm = (await getRealm())
         try {
             const lastPedido = realm.objects('Pedido').sorted('id', true)
@@ -82,6 +85,7 @@ class FormFormasPagamento extends Component {
 
             let limite = pessoa.limite_credito - pessoa.saldo_atrasado - pessoa.saldo_em_dia
             if (valoresPrazo > limite && limite > 0) {
+                this.setState({ loader: false })
                 Alert.alert('Atenção!', `Cliente sem crédito para vendas a prazo.`)
                 return false
             }
@@ -94,13 +98,19 @@ class FormFormasPagamento extends Component {
                 vlr_liquido: formatForCalc(this.state.faturamento.vlr_liquido),
                 vlr_bruto: formatForCalc(this.state.faturamento.vlr_bruto),
                 vlr_desconto: formatForCalc(this.state.faturamento.vlr_desconto),
-                data_criacao: moment().locale('pt-br').format('YYYY-MM-DD'),
+                data_criacao: moment().format('YYYY-MM-DD'),
                 estornado: 0
             }
 
             let pedidoBanco = null
             realm.write(() => {
                 pedidoBanco = realm.create('Pedido', pedido, 'modified')
+                
+                if (valoresPrazo > 0) {
+                    let pessoaBanco = realm.objects('Pessoa').filtered(`id = "${pessoa.id}"`)[0]
+                    pessoaBanco.saldo_em_dia = (pessoaBanco.saldo_em_dia != undefined ? pessoaBanco.saldo_em_dia : 0) + valoresPrazo
+                    realm.create('Pessoa', pessoaBanco, 'modified')
+                }
             })
             
             let netInfo = null
@@ -109,11 +119,13 @@ class FormFormasPagamento extends Component {
                 await enviaPedido(pedidoBanco, realm)
             }
     
+            this.setState({ loader: false })
             Alert.alert('Sucesso!', 'Pedido cadastrada com sucesso.', [{
                 text: 'OK',
                 onPress: this.props.navigation.navigate('ListarPedido'),
             }])
         } catch (e) {
+            this.setState({ loader: false })
             Alert.alert('Atenção!', `Erro ao cadastrar pedido. ${e}`)
         }
     }
@@ -193,7 +205,11 @@ class FormFormasPagamento extends Component {
 
     setDataPrimeiraCobranca = data => {
         let dataFormatada = moment(data).format('D[/]MM[/]YYYY')
-        this.setState({ forma: {...this.state.forma, primeira_cobranca: data, primeira_cobranca_formatada: dataFormatada} })
+        if (moment(data).format('YYYY[-]MM[-]D') > moment().format('YYYY[-]MM[-]D')) {
+            this.setState({ forma: {...this.state.forma, primeira_cobranca: data, primeira_cobranca_formatada: dataFormatada} })
+        } else {
+            Alert.alert('Atenção!', `A data inicial não pode ser menor que ${moment().format('D[/]MM[/]YYYY')}`)
+        }
     }
 
     addForma = async () => {
@@ -365,6 +381,7 @@ class FormFormasPagamento extends Component {
     render() {
         return (
             <View>
+                <OrientationLoadingOverlay visible={this.state.loader} color="white" indicatorSize="large" messageFontSize={24} message="Salvando pedido..."/>
                 <ScrollView>
                     <Card style={ styles.card }>
                         <Card.Title title="Faturamento" titleStyle={styles.textTitleCard}/>

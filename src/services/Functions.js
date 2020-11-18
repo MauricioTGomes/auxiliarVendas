@@ -204,7 +204,8 @@ const baixarPedidos = async () => {
                 let lastId = lastPedido.length > 0 ? lastPedido[0].id : 0                
                 
                 await pedidos.forEach(pedido => {
-                    lastId += 1
+                    let pedidoBanco = realm.objects('Pedido').filtered(`id_numerama = ${pedido.id}`)[0]
+                    if (pedidoBanco == undefined) lastId += 1
                     
                     let pessoa = null
                     if (pedido.pessoa_id != null) {
@@ -264,7 +265,7 @@ const baixarPedidos = async () => {
                     }
 
                     let pedidoCreate = {
-                        id: lastId,
+                        id: pedidoBanco != undefined ? pedidoBanco.id : lastId,
                         id_numerama: pedido.id,
                         pessoa,
                         itens,
@@ -390,7 +391,7 @@ const enviaPedido = async (pedido, realm) => {
             pedido.numero = response.data.pedido.numero
             realm.create('Pedido', pedido, 'modified')
         })
-    }).catch(resp => console.log(resp.response))
+    }).catch(resp => console.log(resp))
 }
 
 export { 
