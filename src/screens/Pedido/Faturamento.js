@@ -323,8 +323,7 @@ class FormFormasPagamento extends Component {
                                 </DataTable.Header>
 
                                 {
-                                    this.state.forma.array_parcelas != undefined ? 
-                                    this.state.forma.array_parcelas.map((parcela, index) => {
+                                    this.state.forma.array_parcelas != undefined ? this.state.forma.array_parcelas.map((parcela, index) => {
                                         return (
                                             <DataTable.Row underlayColor='blue' rippleColor='red' key={index} style={ commonStyles.datatables.faturamentoPrazo.containerDatatable }>
                                                 <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaUm }>{ parcela.nro_parcela }</DataTable.Cell>
@@ -332,8 +331,7 @@ class FormFormasPagamento extends Component {
                                                 <DataTable.Cell style={ commonStyles.datatables.faturamentoPrazo.colunaTres }>{ parcela.valor_original }</DataTable.Cell>
                                             </DataTable.Row>
                                         )
-                                    }) :
-                                    false
+                                    }) : false
                                 }
                             </DataTable>
                         </Card.Content>

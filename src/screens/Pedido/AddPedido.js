@@ -187,25 +187,25 @@ class AddPedido extends Component {
                                     
                                     <Card.Content>
                                         <ScrollView>
-                                            <DataTable style={ commonStyles.datatables.itens.containerDatatable }>
-                                                <DataTable.Header>
+                                        
+                                            <DataTable>
+                                                <DataTable.Header style={ commonStyles.datatables.datatableHeader }>
                                                     <DataTable.Title style={ commonStyles.datatables.itens.colunaUm }>Nome</DataTable.Title>
-                                                    <DataTable.Title style={ commonStyles.datatables.itens.colunaDois }>Total (R$)</DataTable.Title>
+                                                    <DataTable.Title>Total (R$)</DataTable.Title>
                                                 </DataTable.Header>
-
                                                 {
                                                     this.props.pedido.itens.map((item, index) => {
                                                         return (
                                                             <Swipeable renderRightActions={() => this.getRightContent(index)} renderLeftActions={() => this.getLeftContent(index)} key={index}>
-                                                                <DataTable.Row underlayColor='blue' rippleColor='red'>
+                                                                <DataTable.Row underlayColor='blue' rippleColor='red' key={index}>
                                                                     <DataTable.Cell style={ commonStyles.datatables.itens.colunaUm }>
-                                                                        <View style={{width: 200}}>
+                                                                        <View>
                                                                             <Text>{ item.produto.nome }</Text>
                                                                             <Text>{item.vlr_unitario} * {item.quantidade} - {item.vlr_desconto}</Text>
                                                                         </View>
                                                                     </DataTable.Cell>
                                                                     
-                                                                    <DataTable.Cell style={ commonStyles.datatables.itens.colunaDois }>{ formatMoney(item.vlr_total) }</DataTable.Cell>
+                                                                    <DataTable.Cell>{ formatMoney(item.vlr_total) }</DataTable.Cell>
                                                                 </DataTable.Row>
                                                             </Swipeable>
                                                         )
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
     containerItens: {
-        width: '90%',
+        width: '100%',
         maxHeight: Dimensions.get('window').height / 2,
         marginBottom: 10
     },

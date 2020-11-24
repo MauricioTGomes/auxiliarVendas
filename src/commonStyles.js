@@ -80,7 +80,7 @@ export default {
     datatables: {
         faturamentoPrazo: {
             containerDatatable: {
-                flex: 4
+                flex: 5
             },
             colunaUm: {
                 flex: 1,
@@ -88,10 +88,10 @@ export default {
             },
             colunaDois: {
                 flex: 2,
-                justifyContent: 'center'
+                justifyContent: 'flex-start'
             },
             colunaTres: {
-                flex: 1,
+                flex: 2,
                 justifyContent: 'flex-end'
             },
         },

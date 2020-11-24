@@ -29,7 +29,7 @@ export default props => {
                         <Text style={ styles.textos }>{ `Limite crédito: ${formatMoney(props.pessoa.limite_credito)}` }</Text>
                         <Text style={ styles.textos }>{ `Saldo em atraso: ${formatMoney(props.pessoa.saldo_atrasado)}` }</Text>
                         <Text style={ styles.textos }>{ `Saldo em dia: ${formatMoney(props.pessoa.saldo_em_dia)}` }</Text>
-                        <Text style={ styles.textos }>{ `Limite restante: ${formatMoney(props.pessoa.limite_credito - (props.pessoa.saldo_atrasado + props.pessoa.saldo_em_dia))}` }</Text>
+                        <Text style={ styles.textos }>{ `Limite restante: ${props.pessoa.limite_credito <= 0 ? '0,00' : formatMoney(props.pessoa.limite_credito - (props.pessoa.saldo_atrasado + props.pessoa.saldo_em_dia))}` }</Text>
                             
                         <Title>Endereço</Title>
                         <Text style={ styles.textos }>{ `${props.pessoa.cidade.nomeEstado} - ${props.pessoa.cep}` }</Text>

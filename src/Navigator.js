@@ -55,30 +55,22 @@ const Navigator = (props) => {
 
     const optionsInicital = {
         tabBarLabel: 'Inicial',
-        tabBarIcon: ({ color, size }) => (
-        <Icon name="home" color={color} size={size} />
-        ),
+        tabBarIcon: ({ color, size }) => ( <Icon name="home" color={color} size={size} /> ),
     }
 
-    const optionsPessoa = {
-        tabBarLabel: 'Pessoa',
-        tabBarIcon: ({ color, size }) => (
-        <Icon name="user" color={color} size={size} />
-        ),
+    const optionsCliente = {
+        tabBarLabel: 'Clientes',
+        tabBarIcon: ({ color, size }) => ( <Icon name="user" color={color} size={size} /> ),
     }
     
     const optionsProduto = {
-        tabBarLabel: 'Produto',
-        tabBarIcon: ({ color, size }) => (
-        <Icon name="archive" color={color} size={size} />
-        ),
+        tabBarLabel: 'Produtos',
+        tabBarIcon: ({ color, size }) => ( <Icon name="archive" color={color} size={size} /> ),
     }
 
     const optionsPedido = {
-        tabBarLabel: 'Pedido',
-        tabBarIcon: ({ color, size }) => (
-        <Icon name="file" color={color} size={size} />
-        ),
+        tabBarLabel: 'Pedidos',
+        tabBarIcon: ({ color, size }) => ( <Icon name="file" color={color} size={size} /> ),
     }
     
     return (
@@ -90,16 +82,16 @@ const Navigator = (props) => {
                         options={ optionsInicital }
                     />
                     <Tab.Screen
-                        name="Pessoa" children={() => <StackPessoa {...props}/>}
-                        options={ optionsPessoa }
+                        name="Clientes" children={() => <StackPessoa {...props}/>}
+                        options={ optionsCliente }
                     />
                     <Tab.Screen
-                        name="Pedido" children={() => <StackPedido {...props}/>}
+                        name="Pedidos" children={() => <StackPedido {...props}/>}
                         options={ optionsPedido }
                     />
 
                     <Tab.Screen
-                        name="Produto" children={() => <ListarProduto {...props}/>}
+                        name="Produtos" children={() => <ListarProduto {...props}/>}
                         options={ optionsProduto }
                     />
                 </Tab.Navigator>

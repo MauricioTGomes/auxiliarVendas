@@ -16,10 +16,7 @@ import getRealm from '../realm/realm'
 import { iniciaSincronismo } from '../services/Functions'
 
 
-BackgroundTimer.runBackgroundTimer(() => { 
-    iniciaSincronismo()
-    console.log("Comecou")
-}, 30000);// 3600000
+BackgroundTimer.runBackgroundTimer(() => { iniciaSincronismo() }, 900000);// 3600000
 
 class Inicial extends Component {
     state = {
@@ -31,7 +28,9 @@ class Inicial extends Component {
     
     async componentDidMount() {
         const self = this
+
         setTimeout(function () { self.getDadosTela() }, 200)
+        BackgroundTimer.runBackgroundTimer(() => { self.getDadosTela() }, 900010);
     }
 
     componentWillUnmount() {
@@ -58,8 +57,8 @@ class Inicial extends Component {
     }
 
     logout = async () => {
-        let realm = (await getRealm())
-        realm.write(() => { realm.deleteAll() })
+        //let realm = (await getRealm())
+        //realm.write(() => { realm.deleteAll() })
 
         AsyncStorage.removeItem('userData')
         axios.defaults.headers.common['Authorization'] = null
@@ -110,9 +109,9 @@ class Inicial extends Component {
                         </TouchableOpacity>
                         
                         <View style={ styles.containerData }>
-                            <Text style={styles.textoData}>Pessoa: { this.state.ultimaAttPessoa == null ? '----' : moment(this.state.ultimaAttPessoa, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
-                            <Text style={styles.textoData}>Produto: { this.state.ultimaAttProduto == null ? '----' : moment(this.state.ultimaAttProduto, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
-                            <Text style={styles.textoData}>Pedido: { this.state.ultimaAttPedido == null ? '----' : moment(this.state.ultimaAttPedido, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                            <Text style={styles.textoData}>Clientes: { this.state.ultimaAttPessoa == null ? '----' : moment(this.state.ultimaAttPessoa, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                            <Text style={styles.textoData}>Produtos: { this.state.ultimaAttProduto == null ? '----' : moment(this.state.ultimaAttProduto, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
+                            <Text style={styles.textoData}>Pedidos: { this.state.ultimaAttPedido == null ? '----' : moment(this.state.ultimaAttPedido, "YYYY-MM-DD H:m:s").locale('pt-br').format("DD/MM/YYYY H:m:s") }</Text>
                         </View>
 
                         <Card>
@@ -120,8 +119,8 @@ class Inicial extends Component {
                             
                             <Card.Content>
                                 <View style={ styles.containerData }>
-                                    <Text style={styles.textoData}>Pessoa (s): { this.state.qtdPendentePessoas }</Text>
-                                    <Text style={styles.textoData}>Pedido (s): { this.state.qtdPendentePedidos }</Text>
+                                    <Text style={styles.textoData}>Clientes: { this.state.qtdPendentePessoas }</Text>
+                                    <Text style={styles.textoData}>Pedidos: { this.state.qtdPendentePedidos }</Text>
                                 </View>
                             </Card.Content>
                         </Card>
